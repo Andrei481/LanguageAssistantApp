@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native';
-import Logo from '../../assets/Logo_1.png'
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton'
+import Logo from '../../../assets/Logo_1.png'
+import CustomInput from '../../components/CustomInput';
+import CustomButton from '../../components/CustomButton'
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');

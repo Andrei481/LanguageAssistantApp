@@ -1,9 +1,8 @@
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import LoginScreen from './src/LoginScreen';
-import SignupScreen from './src/SignupScreen';
-import ForgotPasswordScreen from './src/ForgotPasswordScreen';
-import ResetPasswordScreen from './src/ResetPasswordScreen';
-
+import LoginScreen from './src/screens/LoginScreen';
+import SignupScreen from './src/screens/SignupScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
+import ResetPasswordScreen from './src/screens/ResetPasswordScreen'
 
 export default function App() {
   return (
