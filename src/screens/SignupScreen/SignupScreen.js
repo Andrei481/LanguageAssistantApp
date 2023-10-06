@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
+import { useNavigation } from '@react-navigation/native';
 
 const SignupScreen = () => {
     const [username, setUsername] = useState('');
@@ -10,13 +11,16 @@ const SignupScreen = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const {height} = useWindowDimensions();
+    const navigation = useNavigation();
 
     const onSignUpPressed = () => {
         console.log('Sign Up Button Pressed');
+        navigation.navigate('Home');
     };
     
     const onLoginPressed = () => {
         console.log("Login Button Pressed");
+        navigation.navigate('Login');
     };
 
     return (

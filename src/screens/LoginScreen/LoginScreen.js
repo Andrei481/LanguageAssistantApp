@@ -3,23 +3,28 @@ import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native
 import Logo from '../../../assets/Logo_1.png'
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
+import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const {height} = useWindowDimensions();
+  const navigation = useNavigation();
 
   const onLoginPressed = () => {
     console.log("Login Button Pressed");
+    navigation.navigate('Home');
   };
 
   const onForgotPasswordPressed = () => {
     console.log('Forgot Password Button Pressed');
+    navigation.navigate('Forgot Password');
   };
 
   const onSignUpPressed = () => {
     console.log('Sign Up Button Pressed');
+    navigation.navigate('SignUp');
   };
 
   return (

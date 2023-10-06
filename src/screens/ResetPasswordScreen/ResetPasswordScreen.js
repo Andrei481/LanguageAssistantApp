@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
+import { useNavigation } from '@react-navigation/native';
 
 const ResetPasswordScreen = () => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
 
-    const {height} = useWindowDimensions();
+    const navigation = useNavigation();
 
     const onSignUpPressed = () => {
         console.log('Sign Up Button Pressed');
+        navigation.navigate('SignUp');
+        
     };
     
     const onResetPasswordPressed = () => {
         console.log("Reset Password Button Pressed");
+        navigation.navigate('Login');
     };
 
     return (
