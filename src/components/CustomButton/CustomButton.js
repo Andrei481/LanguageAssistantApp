@@ -46,7 +46,8 @@ const styles = StyleSheet.create({
         color: 'black'
     },
     text_TERTIARY: {
-        color: 'black'
+        color: 'black',
+        textDecorationLine: 'underline',
     }
 });
 

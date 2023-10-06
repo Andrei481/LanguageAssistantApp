@@ -41,9 +41,9 @@ const LoginScreen = () => {
       />
        <View style={styles.container_resetPassword}>
         <CustomButton
-          text='Forgot Password?'
+          text='Forgot your Password?'
           onPress={onForgotPasswordPressed}
-          type='SECONDARY'
+          type='TERTIARY'
         />
       </View>
       <CustomButton 
