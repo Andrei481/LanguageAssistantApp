@@ -16,6 +16,10 @@ const SignupScreen = () => {
     const {height} = useWindowDimensions();
     const navigation = useNavigation();
     const handleRegister = () => {
+        if (password !== confirmPassword) {
+            Alert.alert("Password Mismatch", "Password and Confirm Password do not match.");
+            return;
+        }
         const user = {
             name: lastName + " " + firstName,
             username: username,
@@ -23,7 +27,7 @@ const SignupScreen = () => {
             password: password
         };
         axios
-            .post("http://192.168.0.104:3000/register", user)
+            .post("http://192.168.0.102:3000/register", user)
             .then((response) => {
                 console.log(response);
                 Alert.alert(
