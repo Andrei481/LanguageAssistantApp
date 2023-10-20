@@ -121,20 +121,33 @@ const secretKey = generateSecretKey();
 
 app.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body; // Use 'identifier' to represent email or username
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "Invalid email" });
+    // Try to find a user by email
+    const userByEmail = await User.findOne({ email: identifier });
+    console.log(userByEmail);
+
+    // Try to find a user by username
+    const userByUsername = await User.findOne({ username: identifier });
+    console.log(userByUsername);
+
+    if (!userByEmail && !userByUsername) {
+      return res.status(404).json({ message: "Invalid email or username" });
     }
 
-    if (user.password !== password) {
-      return res.status(404).json({ message: "Invalid password" });
+    // Check the password for the found user (either by email or username)
+    if (userByEmail && userByEmail.password === password) {
+      const token = jwt.sign({ userId: userByEmail._id }, secretKey);
+      return res.status(200).json({ token });
     }
 
-    const token = jwt.sign({ userId: user._id }, secretKey);
+    if (userByUsername && userByUsername.password === password) {
+      const token = jwt.sign({ userId: userByUsername._id }, secretKey);
+      return res.status(200).json({ token });
+    }
 
-    res.status(200).json({ token });
+    // If the password doesn't match for both cases, return an error
+    return res.status(404).json({ message: "Invalid password" });
   } catch (error) {
     res.status(500).json({ message: "Login failed" });
   }
@@ -157,5 +170,3 @@ app.get("/user/:userId", (req, res) => {
     res.status(500).json({ message: "error getting the users" });
   }
 });
-
-console.log(IP_ADDRESS)
