@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, useWindowDimensions, Alert } from 'react-native';
 import Logo from '../../../assets/Logo_1.png'
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
@@ -25,6 +28,44 @@ const LoginScreen = () => {
   const onSignUpPressed = () => {
     console.log('Sign Up Button Pressed');
     navigation.navigate('SignUp');
+  };
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem("authToken");
+
+        if (token) {
+          setTimeout(() => {
+            navigation.replace("Home");
+          }, 400);
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  const handleLogin = () => {
+    const user = {
+      identifier: username,
+      password: password,
+    };
+
+    axios
+      .post("http://192.168.0.102:3000/login", user)
+      .then((response) => {
+        console.log(response);
+        const token = response.data.token;
+        AsyncStorage.setItem("authToken", token);
+        navigation.navigate("Home");
+      })
+      .catch((error) => {
+        Alert.alert("Login error", `Error: ${error.message}`);
+        console.log("error ", error);
+      });
   };
 
   return (
@@ -52,7 +93,7 @@ const LoginScreen = () => {
         />
       </View>
       <CustomButton 
-        text='Login' onPress={onLoginPressed}
+        text='Login' onPress={handleLogin}
         type='PRIMARY'
       />
       <View style={[styles.container_signup, { top: height - 100 }]}>
