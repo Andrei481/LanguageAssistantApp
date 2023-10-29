@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const port = 3000;
@@ -35,6 +36,7 @@ const User = require("./models/user");
 const IP_ADDRESS = process.env.IP_ADDRESS;
 const EMAIL_USER= process.env.EMAIL_USER;
 const EMAIL_PASS= process.env.EMAIL_PASS;
+const saltRounds = 10; // this is used for hashing
 
 //endpoint to register a user in the backend
 app.post("/register", async (req, res) => {
@@ -46,8 +48,11 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     //create a new user
-    const newUser = new User({ name, username, email, password });
+    const newUser = new User({ name, username, email, password: hashedPassword });
 
     //generate and store the verification token
     newUser.verificationToken = crypto.randomBytes(20).toString("hex");
@@ -136,12 +141,12 @@ app.post("/login", async (req, res) => {
     }
 
     // Check the password for the found user (either by email or username)
-    if (userByEmail && userByEmail.password === password) {
+    if (userByEmail && (await bcrypt.compare(password, userByEmail.password))) {
       const token = jwt.sign({ userId: userByEmail._id }, secretKey);
       return res.status(200).json({ token });
     }
 
-    if (userByUsername && userByUsername.password === password) {
+    if (userByUsername && (await bcrypt.compare(password, userByUsername.password))) {
       const token = jwt.sign({ userId: userByUsername._id }, secretKey);
       return res.status(200).json({ token });
     }
