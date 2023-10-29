@@ -6,6 +6,7 @@ import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { IP_ADDRESS } from 'react-native-dotenv';
 
 
 const LoginScreen = () => {
@@ -30,23 +31,23 @@ const LoginScreen = () => {
     navigation.navigate('SignUp');
   };
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const token = await AsyncStorage.getItem("authToken");
+  // useEffect(() => {
+  //   const checkLoginStatus = async () => {
+  //     try {
+  //       const token = await AsyncStorage.getItem("authToken");
 
-        if (token) {
-          setTimeout(() => {
-            navigation.replace("Home");
-          }, 400);
-        }
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
+  //       if (token) {
+  //         setTimeout(() => {
+  //           navigation.replace("Home");
+  //         }, 400);
+  //       }
+  //     } catch (error) {
+  //       console.log("error", error);
+  //     }
+  //   };
 
-    checkLoginStatus();
-  }, []);
+  //   checkLoginStatus();
+  // }, []);
 
   const handleLogin = () => {
     const user = {
@@ -55,7 +56,7 @@ const LoginScreen = () => {
     };
 
     axios
-      .post("http://192.168.0.102:3000/login", user)
+      .post(`http://${IP_ADDRESS}:3000/login`, user)
       .then((response) => {
         console.log(response);
         const token = response.data.token;

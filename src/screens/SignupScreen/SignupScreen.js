@@ -4,6 +4,8 @@ import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
+import { IP_ADDRESS } from 'react-native-dotenv';
+
 
 const SignupScreen = () => {
     const [firstName, setFirstName] = useState('');
@@ -27,12 +29,12 @@ const SignupScreen = () => {
             password: password
         };
         axios
-            .post("http://192.168.0.102:3000/register", user)
+            .post(`http://${IP_ADDRESS}:3000/register`, user)
             .then((response) => {
                 console.log(response);
                 Alert.alert(
                 "Registration successful",
-                "you have been registered successfully"
+                "You have been registered successfully"
                 );
                 setFirstName("");
                 setLastName("");
