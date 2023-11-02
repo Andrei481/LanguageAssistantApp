@@ -7,7 +7,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 
 const app = express();
-const port = 3000;
+const port = 3210;
 const cors = require("cors");
 app.use(cors());
 
