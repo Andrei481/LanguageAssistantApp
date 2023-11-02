@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 const jwt = require("jsonwebtoken");
 
 mongoose
-  .connect("mongodb+srv://Andrei0408:parola12345@cluster0.sa6zj9o.mongodb.net/", {
+  .connect("mongodb+srv://lily:languageAssistant@cluster0.fmmqe7p.mongodb.net/?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -27,8 +27,25 @@ mongoose
     console.log("Error Connecting to MongoDB");
   });
 
-app.listen(port, () => {
-  console.log("server is running on port 3000");
+const https = require("https");
+
+function getPublicIp() {
+  return new Promise((resolve, reject) => {
+    https.get("https://checkip.amazonaws.com", (response) => {
+      if (response.statusCode === 200) {
+        response.on("data", (data) => {
+          resolve(data.toString());
+        });
+      } else {
+        reject(new Error("Failed to get public IP address"));
+      }
+    });
+  });
+}
+
+app.listen(port, async () => {
+  const publicIp = await getPublicIp();
+  console.log(`Server is running on port ${port} with public IP address ${publicIp}`);
 });
 
 const User = require("./models/user");
