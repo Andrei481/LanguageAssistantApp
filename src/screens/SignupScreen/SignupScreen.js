@@ -29,7 +29,7 @@ const SignupScreen = () => {
             password: password
         };
         axios
-            .post(`http://${IP_ADDRESS}:3000/register`, user)
+            .post(`http://${IP_ADDRESS}:3001/register`, user)
             .then((response) => {
                 console.log(response);
                 Alert.alert(

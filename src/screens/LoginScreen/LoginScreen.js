@@ -56,7 +56,7 @@ const LoginScreen = () => {
     };
 
     axios
-      .post(`http://${IP_ADDRESS}:3000/login`, user)
+      .post(`http://${IP_ADDRESS}:3001/login`, user)
       .then((response) => {
         console.log(response);
         const token = response.data.token;
