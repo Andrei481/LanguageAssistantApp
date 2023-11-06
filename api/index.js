@@ -1,22 +1,27 @@
-require('dotenv').config({ path: '../.env'});
+// index.js
+
+// File imports
+const secret = require('./secret');
+const network = require('./src/network');
+const User = require("./models/user");
+// Package imports
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
-
+const https = require("https");
 const app = express();
-const port = 3001;
+const jwt = require("jsonwebtoken");
 const cors = require("cors");
-app.use(cors());
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-const jwt = require("jsonwebtoken");
 
 mongoose
-  .connect("mongodb+srv://lily:languageAssistant@cluster0.fmmqe7p.mongodb.net/?retryWrites=true&w=majority", {
+  .connect(secret.mongoDbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -27,32 +32,21 @@ mongoose
     console.log("Error Connecting to MongoDB");
   });
 
-const https = require("https");
-
-function getPublicIp() {
-  return new Promise((resolve, reject) => {
-    https.get("https://checkip.amazonaws.com", (response) => {
-      if (response.statusCode === 200) {
-        response.on("data", (data) => {
-          resolve(data.toString());
-        });
-      } else {
-        reject(new Error("Failed to get public IP address"));
-      }
-    });
-  });
-}
-
-app.listen(port, async () => {
-  const publicIp = await getPublicIp();
-  console.log(`Server is running on port ${port} with public IP address ${publicIp}`);
+const serverPort = 3001;
+app.listen(serverPort, async () => {
+  const publicIp = await network.getPublicIp();
+  const localIp = await network.getLocalIp();
+  let serverIp;
+  if (await network.isPortOpen(publicIp, serverPort)) {
+    serverIp = publicIp;
+    console.log(`Server is available to the Internet at IP ${serverIp} and port ${serverPort}`);
+  } else {
+    serverIp = localIp;
+    console.log(`Server is available only locally at IP ${serverIp} and port ${serverPort}`);
+  }
+  network.postIp(serverIp, serverPort);
 });
 
-const User = require("./models/user");
-
-const IP_ADDRESS = process.env.IP_ADDRESS;
-const EMAIL_USER= process.env.EMAIL_USER;
-const EMAIL_PASS= process.env.EMAIL_PASS;
 const saltRounds = 10; // this is used for hashing
 
 //endpoint to register a user in the backend
@@ -78,7 +72,7 @@ app.post("/register", async (req, res) => {
     await newUser.save();
 
     //send the verification email to the user
-    sendVerificationEmail(newUser.email, newUser.verificationToken);
+    network.sendMail(newUser.email, newUser.verificationToken);
 
     res.status(200).json({ message: "Registration successful" });
   } catch (error) {
@@ -86,33 +80,6 @@ app.post("/register", async (req, res) => {
     res.status(500).json({ message: "error registering user" });
   }
 });
-
-const sendVerificationEmail = async (email, verificationToken) => {
-  
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: EMAIL_USER, // Use the environment variable
-      pass: EMAIL_PASS, // Use the environment variable
-    },
-    tls: {
-      rejectUnauthorized: false, // Bypass SSL certificate verification
-    },
-  });
-
-  const mailOptions = {
-    from: "LanguageAssistant",
-    to: email,
-    subject: "Email Verification",
-    text: `Please click the following link to verify your email http://${IP_ADDRESS}:3000/verify/${verificationToken}`,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.log("error sending email", error);
-  }
-};
 
 app.get("/verify/:token", async (req, res) => {
   try {
