@@ -45,8 +45,6 @@ app.listen(serverPort, async () => {
   }
 });
 
-const saltRounds = 10; // this is used for hashing
-
 //endpoint to register a user in the backend
 app.post("/register", async (req, res) => {
   try {
@@ -54,23 +52,21 @@ app.post("/register", async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already registered" });
+      return res.status(401).json({ message: "Email already registered" });
+    }
+
+    const existingUserByUsername = await User.findOne({ username });
+    if (existingUserByUsername) {
+      return res.status(402).json({ message: "Username already taken" });
     }
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    //create a new user
     const newUser = new User({ name, username, email, password: hashedPassword });
 
-    //generate and store the verification token
-    newUser.verificationToken = crypto.randomBytes(20).toString("hex");
-
-    //save the  user to the database
-    await newUser.save();
-
-    //send the verification email to the user
+    newUser.verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
     network.sendMail(newUser.email, newUser.verificationToken);
+    await newUser.save();
 
     res.status(200).json({ message: "Registration successful" });
   } catch (error) {
@@ -79,13 +75,14 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.get("/verify/:token", async (req, res) => {
+app.post("/verify", async (req, res) => {
   try {
-    const token = req.params.token;
+    const { username, userCode } = req.body;
 
-    const user = await User.findOne({ verificationToken: token });
-    if (!user) {
-      return res.status(404).json({ message: "Invalid token" });
+    const user = await User.findOne({ username });
+
+    if (user.verificationToken !== userCode) {
+      return res.status(403).json({ message: "Invalid token" });
     }
 
     user.verified = true;
