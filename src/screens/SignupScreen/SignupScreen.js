@@ -1,10 +1,10 @@
+import { serverIp, serverPort } from '../../network';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, Alert } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
-import { IP_ADDRESS } from 'react-native-dotenv';
 
 
 const SignupScreen = () => {
@@ -15,7 +15,7 @@ const SignupScreen = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const {height} = useWindowDimensions();
+    const { height } = useWindowDimensions();
     const navigation = useNavigation();
     const handleRegister = () => {
         if (password !== confirmPassword) {
@@ -29,12 +29,12 @@ const SignupScreen = () => {
             password: password
         };
         axios
-            .post(`http://${IP_ADDRESS}:3001/register`, user)
+            .post(`http://${serverIp}:${serverPort}/register`, user)
             .then((response) => {
                 console.log(response);
                 Alert.alert(
-                "Registration successful",
-                "You have been registered successfully"
+                    "Registration successful",
+                    "You have been registered successfully"
                 );
                 setFirstName("");
                 setLastName("");
@@ -45,24 +45,24 @@ const SignupScreen = () => {
             })
             .catch((error) => {
                 if (error.response) {
-                  // The server responded with a status code outside the 2xx range
-                  console.log("Server responded with an error:", error.response.status);
-                  console.log("Response data:", error.response.data);
+                    // The server responded with a status code outside the 2xx range
+                    console.log("Server responded with an error:", error.response.status);
+                    console.log("Response data:", error.response.data);
                 } else if (error.request) {
-                  // No response was received
-                  console.log("No response received. The request may have failed.");
+                    // No response was received
+                    console.log("No response received. The request may have failed.");
                 } else {
-                  // Something happened in setting up the request
-                  console.log("Error setting up the request:", error.message);
+                    // Something happened in setting up the request
+                    console.log("Error setting up the request:", error.message);
                 }
-              });
+            });
     };
 
     const onSignUpPressed = () => {
         console.log('Sign Up Button Pressed');
         navigation.navigate('Home');
     };
-    
+
     const onLoginPressed = () => {
         console.log("Login Button Pressed");
         navigation.navigate('Login');
@@ -86,7 +86,7 @@ const SignupScreen = () => {
                 value={username}
                 setValue={setUsername}
             />
-            <CustomInput 
+            <CustomInput
                 placeholder="Enter Email Address"
                 value={email}
                 setValue={setEmail}
@@ -104,7 +104,7 @@ const SignupScreen = () => {
                 secureTextEntry={true}
             />
             <View>
-                <CustomButton 
+                <CustomButton
                     text='Create Account' onPress={handleRegister}
                     type='PRIMARY'
                 />
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 50,
     },
-    
+
     text: {
         fontWeight: 'bold',
         color: 'darkblue',
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
         height: 100, // Set the height of your component
         justifyContent: 'center', // Vertically center content
         alignItems: 'center', // Horizontally center content
-      }
-  });
+    }
+});
 
 export default SignupScreen;
