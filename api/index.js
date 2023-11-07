@@ -34,6 +34,10 @@ mongoose
 
 const serverPort = 3001;
 app.listen(serverPort, async () => {
+  console.log(`Server is running`);
+});
+
+setTimeout(async () => {
   const publicIp = await network.getPublicIp();
   const localIp = await network.getLocalIp();
   let serverIp;
@@ -45,7 +49,7 @@ app.listen(serverPort, async () => {
     console.log(`Server is available only locally at IP ${serverIp} and port ${serverPort}`);
   }
   network.postIp(serverIp, serverPort);
-});
+}, 10000); // 10 seconds delay
 
 const saltRounds = 10; // this is used for hashing
 
