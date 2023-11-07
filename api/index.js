@@ -35,27 +35,17 @@ mongoose
 const serverPort = 3001;
 app.listen(serverPort, async () => {
   console.log(`Server is running`);
-});
-
-async function checkServerStatus() {
-
   const publicIp = await network.getPublicIp();
   const localIp = await network.getLocalIp();
-  console.log(publicIp, localIp);
   const serverUp = await network.isServerUp(publicIp, serverPort);
   if (serverUp) {
     console.log(`Server is available to the Internet at IP ${publicIp} and port ${serverPort}`);
-    //network.postIp(publicIp, serverPort);
+    network.postIp(publicIp, serverPort);
   } else {
     console.log(`Server is available only locally at IP ${localIp} and port ${serverPort}`);
-    //network.postIp(localIp, serverPort);
+    network.postIp(localIp, serverPort);
   }
-
-
-}
-
-checkServerStatus();
-
+});
 
 const saltRounds = 10; // this is used for hashing
 

@@ -12,7 +12,7 @@ exports.getPublicIp = function () {
         https.get("https://checkip.amazonaws.com", (response) => {
             if (response.statusCode === 200) {
                 response.on("data", (data) => {
-                    resolve(data.toString());
+                    resolve(data.toString().trim());
                 });
             } else {
                 reject(new Error("Failed to get public IP address"));
