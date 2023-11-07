@@ -5,9 +5,13 @@ import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
+import Dialog from "react-native-dialog";
+
 
 
 const SignupScreen = () => {
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [username, setUsername] = useState('');
@@ -17,6 +21,7 @@ const SignupScreen = () => {
 
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
+
     const handleRegister = () => {
         if (password !== confirmPassword) {
             Alert.alert("Password Mismatch", "Password and Confirm Password do not match.");
@@ -28,26 +33,22 @@ const SignupScreen = () => {
             email: email,
             password: password
         };
-        axios
-            .post(`http://${serverIp}:${serverPort}/register`, user)
+        axios.post(`http://${serverIp}:${serverPort}/register`, user)
             .then((response) => {
-                console.log(response);
-                Alert.alert(
-                    "Registration successful",
-                    "You have been registered successfully"
-                );
-                setFirstName("");
-                setLastName("");
-                setUsername("");
-                setEmail("");
-                setPassword("");
-                setConfirmPassword("");
+
+                setDialogVisible(true);
             })
             .catch((error) => {
                 if (error.response) {
-                    // The server responded with a status code outside the 2xx range
-                    console.log("Server responded with an error:", error.response.status);
-                    console.log("Response data:", error.response.data);
+                    if (error.response.status === 401) {
+                        Alert.alert("Email already registered", "Please try again.");
+                    }
+                    else if (error.response.status === 402) {
+                        Alert.alert("Username already taken", "Please try again.");
+                    }
+                    else {
+                        console.log("Response data:", error.response.data);
+                    }
                 } else if (error.request) {
                     // No response was received
                     console.log("No response received. The request may have failed.");
@@ -56,6 +57,46 @@ const SignupScreen = () => {
                     console.log("Error setting up the request:", error.message);
                 }
             });
+    };
+
+    const handleCancel = () => {
+        setDialogVisible(false);
+        //delete user from db
+    };
+
+    const handleOK = () => {
+        const data = {
+            username: username,
+            userCode: verificationCode
+        };
+
+        axios.post(`http://${serverIp}:${serverPort}/verify`, data)
+            .then(response => {
+                setFirstName("");
+                setLastName("");
+                setUsername("");
+                setEmail("");
+                setPassword("");
+                setConfirmPassword("");
+                setDialogVisible(false);
+                navigation.navigate('Home');
+                Alert.alert("Registration succesful", "Welcome!");
+            })
+            .catch(error => {
+                if (error.response) {
+                    if (error.response.status === 403) {
+                        Alert.alert("Incorrect Verification Code", "Please try again.");
+                    }
+                    else {
+                        console.log("Response data:", error.response.data);
+                    }
+                }
+                else {
+                    console.error(error);
+                }
+            });
+
+
     };
 
     const onSignUpPressed = () => {
@@ -116,6 +157,15 @@ const SignupScreen = () => {
                     type='TERTIARY'
                 />
             </View>
+            <Dialog.Container visible={dialogVisible}>
+                <Dialog.Title>Enter Verification Code</Dialog.Title>
+                <Dialog.Description>
+                    Please enter the verification code sent to your email
+                </Dialog.Description>
+                <Dialog.Input onChangeText={setVerificationCode} />
+                <Dialog.Button label="Cancel" onPress={handleCancel} />
+                <Dialog.Button label="OK" onPress={handleOK} />
+            </Dialog.Container>
         </View>
     );
 };
