@@ -12,7 +12,7 @@ exports.getPublicIp = function () {
         https.get("https://checkip.amazonaws.com", (response) => {
             if (response.statusCode === 200) {
                 response.on("data", (data) => {
-                    resolve(data.toString());
+                    resolve(data.toString().trim());
                 });
             } else {
                 reject(new Error("Failed to get public IP address"));
@@ -35,20 +35,16 @@ exports.getLocalIp = function () {
     return localIp;
 }
 
-exports.isPortOpen = function (ip, port) {
-    return new Promise((resolve) => {
-        const socket = new net.Socket();
-
-        socket.once('connect', () => {
+exports.isServerUp = function (host, port) {
+    return new Promise((resolve, reject) => {
+        const client = net.createConnection({ host, port, timeout: 1000 }, () => {
+            client.end();
             resolve(true);
-            socket.end();
         });
 
-        socket.once('error', () => {
+        client.on('error', (err) => {
             resolve(false);
         });
-
-        socket.connect(port, ip);
     });
 }
 

@@ -9,9 +9,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
-const https = require("https");
 const app = express();
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
@@ -35,21 +33,17 @@ mongoose
 const serverPort = 3001;
 app.listen(serverPort, async () => {
   console.log(`Server is running`);
-});
-
-setTimeout(async () => {
   const publicIp = await network.getPublicIp();
   const localIp = await network.getLocalIp();
-  let serverIp;
-  if (await network.isPortOpen(publicIp, serverPort)) {
-    serverIp = publicIp;
-    console.log(`Server is available to the Internet at IP ${serverIp} and port ${serverPort}`);
+  const serverUp = await network.isServerUp(publicIp, serverPort);
+  if (serverUp) {
+    console.log(`Server is available to the Internet at IP ${publicIp} and port ${serverPort}`);
+    network.postIp(publicIp, serverPort);
   } else {
-    serverIp = localIp;
-    console.log(`Server is available only locally at IP ${serverIp} and port ${serverPort}`);
+    console.log(`Server is available only locally at IP ${localIp} and port ${serverPort}`);
+    network.postIp(localIp, serverPort);
   }
-  network.postIp(serverIp, serverPort);
-}, 10000); // 10 seconds delay
+});
 
 const saltRounds = 10; // this is used for hashing
 
