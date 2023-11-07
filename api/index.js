@@ -40,6 +40,7 @@ app.listen(serverPort, async () => {
 setTimeout(async () => {
   const publicIp = await network.getPublicIp();
   const localIp = await network.getLocalIp();
+  console.log(publicIp, localIp);
   let serverIp;
   if (await network.isPortOpen(publicIp, serverPort)) {
     serverIp = publicIp;
