@@ -4,6 +4,7 @@ const https = require('https');
 const os = require('os');
 const interfaces = os.networkInterfaces();
 const net = require('net');
+const nodemailer = require('nodemailer');
 const snoowrap = require('snoowrap');
 
 exports.getPublicIp = function () {
@@ -80,18 +81,32 @@ exports.postIp = function (ip, port) {
 }
 
 exports.sendMail = function (recipient, code) {
-    const formData = require('form-data');
-    const Mailgun = require('mailgun.js');
-    const mailgun = new Mailgun(formData);
-    const mg = mailgun.client({ username: 'api', key: secret.mailgunKey });
-    const mailText = 'Thanks for joining Language Assistant! Here is your verification code: ' + code + '.';
-    mg.messages.create('sandbox70c310efbbf34753b121ea51d61b0594.mailgun.org', {
-        from: "Lily Language Assistant <mailgun@sandbox70c310efbbf34753b121ea51d61b0594.mailgun.org>",
-        to: [recipient],
+
+    const transporter = nodemailer.createTransport({
+        host: 'smtp-mail.outlook.com', // Hotmail's SMTP server
+        port: 587, // Port for TLS (587) or SSL (465)
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: secret.lilyMail,
+            pass: secret.lilyPass,
+        },
+    });
+
+    // Email data
+    const mailOptions = {
+        from: secret.lilyMail,
+        to: recipient,
         subject: "Please verify your Language Assistant account",
-        text: mailText,
-        html: mailText
-    })
-        .then(msg => console.log('Mail sent.')) // logs response data
-        .catch(err => console.log(err)); // logs any error
+        text: 'Thanks for joining Language Assistant! Here is your verification code: ' + code + '.',
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+
 }
