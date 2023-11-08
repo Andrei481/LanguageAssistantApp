@@ -24,16 +24,9 @@ const LoginScreen = () => {
   };
 
   const handleLogin = () => {
-    console.log(!username || !password)
-    const user = {
-      identifier: username,
-      password: password,
-    };
-
     axios
-      .post(`http://${serverIp}:${serverPort}/login`, user)
+      .post(`http://${serverIp}:${serverPort}/login`, { identifier: username, password: password, })
       .then((response) => {
-        console.log(response);
         const token = response.data.token;
         AsyncStorage.setItem("authToken", token);
         navigation.navigate("Home");

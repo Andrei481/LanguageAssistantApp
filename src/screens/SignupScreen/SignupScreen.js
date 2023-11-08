@@ -55,21 +55,9 @@ const SignupScreen = () => {
             })
             .catch((error) => {
                 if (error.response) {
-                    if (error.response.status === 401) {
-                        Alert.alert("Email already registered", "Please try again.");
-                    }
-                    else if (error.response.status === 402) {
-                        Alert.alert("Username already taken", "Please try again.");
-                    }
-                    else {
-                        console.log("Response data:", error.response.data);
-                    }
-                } else if (error.request) {
-                    // No response was received
-                    console.log("No response received. The request may have failed.");
+                    Alert.alert("Registration error", error.response.data.message);
                 } else {
-                    // Something happened in setting up the request
-                    console.log("Error setting up the request:", error.message);
+                    Alert.alert("Network error", 'No response from server');
                 }
             });
     };
@@ -81,7 +69,7 @@ const SignupScreen = () => {
 
     const handleOK = () => {
         const data = {
-            username: username,
+            identifier: username,
             userCode: verificationCode
         };
 
@@ -122,27 +110,27 @@ const SignupScreen = () => {
         <View style={styles.root}>
             <Text style={styles.text}>Sign up</Text>
             <CustomInput
-                placeholder="Enter First Name"
+                placeholder="First Name"
                 value={firstName}
                 setValue={setFirstName}
             />
             <CustomInput
-                placeholder="Enter Last Name"
+                placeholder="Last Name"
                 value={lastName}
                 setValue={setLastName}
             />
             <CustomInput
-                placeholder="Enter Username"
+                placeholder="Username"
                 value={username}
                 setValue={setUsername}
             />
             <CustomInput
-                placeholder="Enter Email Address"
+                placeholder="Email Address"
                 value={email}
                 setValue={setEmail}
             />
             <CustomInput
-                placeholder="Enter Password"
+                placeholder="Password"
                 value={password}
                 setValue={setPassword}
                 secureTextEntry={true}
