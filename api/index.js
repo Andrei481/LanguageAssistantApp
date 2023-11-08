@@ -105,33 +105,27 @@ const secretKey = generateSecretKey();
 
 app.post("/login", async (req, res) => {
   try {
-    const { identifier, password } = req.body; // Use 'identifier' to represent email or username
+    const { identifier, password } = req.body;
 
-    // Try to find a user by email
-    const userByEmail = await User.findOne({ email: identifier });
-    console.log(userByEmail);
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }],
+    });
 
-    // Try to find a user by username
-    const userByUsername = await User.findOne({ username: identifier });
-    console.log(userByUsername);
-
-    if (!userByEmail && !userByUsername) {
+    if (!user) {
       return res.status(404).json({ message: "Invalid email or username" });
     }
 
-    // Check the password for the found user (either by email or username)
-    if (userByEmail && (await bcrypt.compare(password, userByEmail.password))) {
-      const token = jwt.sign({ userId: userByEmail._id }, secretKey);
-      return res.status(200).json({ token });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(405).json({ message: "Invalid password" });
     }
 
-    if (userByUsername && (await bcrypt.compare(password, userByUsername.password))) {
-      const token = jwt.sign({ userId: userByUsername._id }, secretKey);
-      return res.status(200).json({ token });
+    if (!user.verified) {
+      return res.status(406).json({ message: "Email not verified" });
     }
 
-    // If the password doesn't match for both cases, return an error
-    return res.status(404).json({ message: "Invalid password" });
+    const token = jwt.sign({ userId: user._id }, secretKey);
+    return res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ message: "Login failed" });
   }
