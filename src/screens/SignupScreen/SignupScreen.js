@@ -23,6 +23,22 @@ const SignupScreen = () => {
     const navigation = useNavigation();
 
     const handleRegister = () => {
+        const usernameRegex = /^[a-zA-Z0-9._-]+$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$/;
+        const nameRegex = /^[a-zA-Z -]+$/;
+
+        if (!usernameRegex.test(username)) {
+            Alert.alert("Invalid Username", "Username can only contain letters, numbers, and the symbols: . _ -");
+            return;
+        }
+        if (!emailRegex.test(email)) {
+            Alert.alert("Invalid Email", "Please enter a valid email address.");
+            return;
+        }
+        if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
+            Alert.alert("Invalid Name", "Please enter your real name");
+            return;
+        }
         if (password !== confirmPassword) {
             Alert.alert("Password Mismatch", "Password and Confirm Password do not match.");
             return;
@@ -35,7 +51,6 @@ const SignupScreen = () => {
         };
         axios.post(`http://${serverIp}:${serverPort}/register`, user)
             .then((response) => {
-
                 setDialogVisible(true);
             })
             .catch((error) => {
@@ -99,13 +114,7 @@ const SignupScreen = () => {
 
     };
 
-    const onSignUpPressed = () => {
-        console.log('Sign Up Button Pressed');
-        navigation.navigate('Home');
-    };
-
     const onLoginPressed = () => {
-        console.log("Login Button Pressed");
         navigation.navigate('Login');
     };
 
@@ -144,10 +153,11 @@ const SignupScreen = () => {
                 setValue={setConfirmPassword}
                 secureTextEntry={true}
             />
-            <View>
+            <View style={{ width: '50%', marginTop: 10 }}>
                 <CustomButton
                     text='Create Account' onPress={handleRegister}
                     type='PRIMARY'
+                    disabled={!firstName || !lastName || !username || !email || !password || !confirmPassword}
                 />
             </View>
             <View style={[styles.container_login, { top: height - 100 }]}>

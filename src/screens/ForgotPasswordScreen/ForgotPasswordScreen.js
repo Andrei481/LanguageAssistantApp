@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, Alert } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
@@ -7,16 +7,19 @@ import { useNavigation } from '@react-navigation/native';
 const ForgotPasswordScreen = () => {
     const [recoveryEmail, setRecoveryEmail] = useState('');
 
-    const {height} = useWindowDimensions();
+    const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
     const onSignUpPressed = () => {
-        console.log('Sign Up Button Pressed');
         navigation.navigate('SignUp');
     };
-    
+
     const onResetPasswordPressed = () => {
-        console.log("Reset Password Button Pressed");
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(recoveryEmail)) {
+            Alert.alert("Invalid Email", "Please enter a valid email address.");
+            return;
+        }
         navigation.navigate('Reset Password');
     };
 
@@ -24,21 +27,21 @@ const ForgotPasswordScreen = () => {
         <View style={styles.root}>
             <Text style={styles.text_title}>Forgot your password?</Text>
             <View>
-                <Text style={styles.text_help}>Don't worry! We will help you recover it!</Text>
-                <Text style={styles.text_help}>Enter your username or email address</Text>
+                <Text style={styles.text_help}>Don't worry, we can help you recover it.</Text>
             </View>
             <CustomInput
                 placeholder="Enter Username or Email"
                 value={recoveryEmail}
                 setValue={setRecoveryEmail}
             />
-            <View>
-                <CustomButton 
+            <View style={{ width: '50%', marginTop: 10 }}>
+                <CustomButton
                     text='Reset Password' onPress={onResetPasswordPressed}
                     type='PRIMARY'
+                    disabled={!recoveryEmail}
                 />
             </View>
-            <View style={[styles.container_login, {top: height - 100}]}>
+            <View style={[styles.container_login, { top: height - 100 }]}>
                 <Text>Don't have an account?</Text>
                 <CustomButton
                     text='Sign Up!' onPress={onSignUpPressed}
@@ -54,7 +57,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 50,
     },
-    
+
     text_title: {
         fontWeight: 'bold',
         color: 'darkblue',
@@ -72,7 +75,7 @@ const styles = StyleSheet.create({
         height: 100, // Set the height of your component
         justifyContent: 'center', // Vertically center content
         alignItems: 'center', // Horizontally center content
-      }
-  });
+    }
+});
 
 export default ForgotPasswordScreen;

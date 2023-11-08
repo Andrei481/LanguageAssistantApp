@@ -11,12 +11,6 @@ const ResetPasswordScreen = () => {
 
     const navigation = useNavigation();
 
-    const onSignUpPressed = () => {
-        console.log('Sign Up Button Pressed');
-        navigation.navigate('SignUp');
-        
-    };
-    
     const onResetPasswordPressed = () => {
         console.log("Reset Password Button Pressed");
         navigation.navigate('Login');
@@ -30,13 +24,13 @@ const ResetPasswordScreen = () => {
                 value={newPassword}
                 setValue={setNewPassword}
             />
-            <CustomInput 
+            <CustomInput
                 placeholder="Confirm New Password"
                 value={confirmNewPassword}
                 setValue={setConfirmNewPassword}
             />
             <View>
-                <CustomButton 
+                <CustomButton
                     text='Reset Password' onPress={onResetPasswordPressed}
                     type='PRIMARY'
                 />
@@ -50,7 +44,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 50,
     },
-    
+
     text_title: {
         fontWeight: 'bold',
         color: 'darkblue',
@@ -58,6 +52,6 @@ const styles = StyleSheet.create({
         paddingTop: 150,
         paddingBottom: 25,
     },
-  });
+});
 
 export default ResetPasswordScreen;

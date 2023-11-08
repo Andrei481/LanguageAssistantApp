@@ -15,40 +15,16 @@ const LoginScreen = () => {
   const { height } = useWindowDimensions();
   const navigation = useNavigation();
 
-  const onLoginPressed = () => {
-    console.log("Login Button Pressed");
-    navigation.navigate('Home');
-  };
-
   const onForgotPasswordPressed = () => {
-    console.log('Forgot Password Button Pressed');
     navigation.navigate('Forgot Password');
   };
 
   const onSignUpPressed = () => {
-    console.log('Sign Up Button Pressed');
     navigation.navigate('SignUp');
   };
 
-  // useEffect(() => {
-  //   const checkLoginStatus = async () => {
-  //     try {
-  //       const token = await AsyncStorage.getItem("authToken");
-
-  //       if (token) {
-  //         setTimeout(() => {
-  //           navigation.replace("Home");
-  //         }, 400);
-  //       }
-  //     } catch (error) {
-  //       console.log("error", error);
-  //     }
-  //   };
-
-  //   checkLoginStatus();
-  // }, []);
-
   const handleLogin = () => {
+    console.log(!username || !password)
     const user = {
       identifier: username,
       password: password,
@@ -63,8 +39,7 @@ const LoginScreen = () => {
         navigation.navigate("Home");
       })
       .catch((error) => {
-        Alert.alert("Login error", `Error: ${error.message}`);
-        console.log("error ", error);
+        Alert.alert("Login error", error.response.data.message);
       });
   };
 
@@ -75,7 +50,7 @@ const LoginScreen = () => {
       />
 
       <CustomInput
-        placeholder="Enter Username"
+        placeholder="Enter Username or Email"
         value={username}
         setValue={setUsername}
       />
@@ -85,6 +60,13 @@ const LoginScreen = () => {
         setValue={setPassword}
         secureTextEntry={true}
       />
+      <View style={{ width: '50%', marginTop: 10 }}>
+        <CustomButton
+          text='Login' onPress={handleLogin}
+          type='PRIMARY'
+          disabled={!username || !password}
+        />
+      </View>
       <View style={styles.container_resetPassword}>
         <CustomButton
           text='Forgot your Password?'
@@ -92,10 +74,6 @@ const LoginScreen = () => {
           type='TERTIARY'
         />
       </View>
-      <CustomButton
-        text='Login' onPress={handleLogin}
-        type='PRIMARY'
-      />
       <View style={[styles.container_signup, { top: height - 100 }]}>
         <Text>Don't have an account?</Text>
         <CustomButton
@@ -103,7 +81,7 @@ const LoginScreen = () => {
           type='TERTIARY'
         />
       </View>
-    </View>
+    </View >
   );
 };
 
@@ -123,7 +101,6 @@ const styles = StyleSheet.create({
   container_resetPassword: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
   },
   container_signup: {
     position: 'absolute',
