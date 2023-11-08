@@ -76,7 +76,7 @@ exports.postIp = function (ip, port) {
         });
 }
 
-exports.sendMail = function (recipient, code) {
+exports.sendMail = function (recipient, subject, text) {
 
     const transporter = nodemailer.createTransport({
         host: 'smtp-mail.outlook.com', // Hotmail's SMTP server
@@ -92,8 +92,8 @@ exports.sendMail = function (recipient, code) {
     const mailOptions = {
         from: secret.lilyMail,
         to: recipient,
-        subject: "Please verify your Language Assistant account",
-        text: 'Thanks for joining Language Assistant! Here is your verification code: ' + code + '.',
+        subject: subject,
+        text: text
     };
 
     // Send the email
@@ -101,7 +101,7 @@ exports.sendMail = function (recipient, code) {
         if (error) {
             console.log(error);
         } else {
-            console.log('Email sent: ' + info.response);
+            console.log('Email sent');
         }
     });
 

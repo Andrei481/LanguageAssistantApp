@@ -65,7 +65,9 @@ app.post("/register", async (req, res) => {
     const newUser = new User({ name, username, email, password: hashedPassword });
 
     newUser.verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-    network.sendMail(newUser.email, newUser.verificationToken);
+    subject = 'Language Assistant registration';
+    text = `Hello, ${name}! Here is your verification code: ${newUser.verificationToken}`;
+    network.sendMail(email, subject, text);
     await newUser.save();
 
     res.status(200).json({ message: "Registration successful" });
@@ -77,9 +79,11 @@ app.post("/register", async (req, res) => {
 
 app.post("/verify", async (req, res) => {
   try {
-    const { username, userCode } = req.body;
+    const { identifier, userCode } = req.body;
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }],
+    });
 
     if (user.verificationToken !== userCode) {
       return res.status(403).json({ message: "Invalid token" });
@@ -93,6 +97,51 @@ app.post("/verify", async (req, res) => {
   } catch (error) {
     console.log("error getting token", error);
     res.status(500).json({ message: "Email verification failed" });
+  }
+});
+
+app.post("/forgotpass", async (req, res) => {
+  try {
+    const { identifier } = req.body;
+
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Invalid email or username" });
+    }
+
+    user.verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    subject = 'Language Assistant password reset';
+    text = `Hello, ${user.name}! Here is your password reset code: ${user.verificationToken}`;
+    network.sendMail(user.email, subject, text);
+    await user.save();
+
+    res.status(200).json({ message: "Email sent" });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending mail" });
+  }
+});
+
+app.post("/resetpass", async (req, res) => {
+  try {
+    const { identifier, newPassword } = req.body;
+
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Invalid email or username" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ message: "Email sent" });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending mail" });
   }
 });
 
