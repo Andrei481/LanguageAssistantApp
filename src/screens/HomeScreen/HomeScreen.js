@@ -1,12 +1,27 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, PermissionsAndroid, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, PermissionsAndroid, Image, useWindowDimensions, BackHandler } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import CustomButton from '../../components/CustomButton'
 import * as ImagePicker from 'expo-image-picker';
 import { MediaLibrary } from 'expo';
+import { useNavigation } from '@react-navigation/native';
 
 
 const HomeScreen = () => {
+  
+    const navigation = useNavigation();
+
+    useEffect(() => {
+        const onBackPress = () => {
+            navigation.replace('Login');
+            return true;
+        };
+        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        };
+    }, []);
+  
     const [cameraPhoto, setCameraPhoto] = useState(null);
     const [galleryPhoto, setGalleryPhoto] = useState(null);
 
@@ -75,7 +90,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 50,
     },
-    
+
     text_title: {
         fontWeight: 'bold',
         color: 'darkblue',
@@ -83,6 +98,6 @@ const styles = StyleSheet.create({
         paddingTop: 150,
         paddingBottom: 25,
     },
-  });
+});
 
 export default HomeScreen;
