@@ -59,6 +59,7 @@ const ForgotPasswordScreen = () => {
                 }
             });
 
+        setDialogVisible(false);
 
     };
 
