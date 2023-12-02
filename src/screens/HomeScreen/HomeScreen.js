@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, PermissionsAndroid, Image, useWindowDimensions, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, PermissionsAndroid, Image, useWindowDimensions, BackHandler, Alert } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import CustomButton from '../../components/CustomButton'
 import * as ImagePicker from 'expo-image-picker';
-import { MediaLibrary } from 'expo';
+import * as MediaLibrary from 'expo-media-library';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -32,6 +32,8 @@ const HomeScreen = () => {
         } catch (error) {
           console.error('Error saving to gallery:', error);
         }
+        // Alert.alert("Image saved successfully");
+        // console.log("Saved to gallery");
     };
   
     const openCamera = async () => {
@@ -39,7 +41,7 @@ const HomeScreen = () => {
       if (status === 'granted') {
         const result = await ImagePicker.launchCameraAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
+          allowsEditing: false,
           aspect: [4, 3],
           quality: 1,
         });
