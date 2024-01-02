@@ -11,7 +11,6 @@ import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
 
-
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [isTfReady, setIsTfReady] = useState(false);
@@ -24,7 +23,7 @@ const HomeScreen = () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1],
+      aspect: undefined,
       quality: 1,
     });
     if (!result.canceled) {
@@ -142,8 +141,9 @@ const HomeScreen = () => {
 /> }
       <Image
         source={{ uri: pickedImage }}
-        style={{ width: 200, height: 200, margin: 40 }}
+        style={{ width: 500, height: 500, margin: 40 }}
      />
+
       <View style={{ width: '100%', height: 20 }} />
       {!isTfReady && <Text>Loading TFJS model...</Text>}
       {isTfReady && result === '' && <Text>Pick an image to classify!</Text>}
