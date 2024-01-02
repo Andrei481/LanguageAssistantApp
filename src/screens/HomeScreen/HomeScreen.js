@@ -17,6 +17,22 @@ const HomeScreen = () => {
   const [result, setResult] = useState('');
   const [pickedImage, setPickedImage] = useState('');
   const [cameraPhoto, setCameraPhoto] = useState(null);
+  const [model, setModel] = useState(null);
+
+  useEffect(() => {
+    const loadModel = async () => {
+      try {
+        await tf.ready();
+        const mobilenetModel = await mobilenet.load();
+        setIsTfReady(true);
+        setModel(mobilenetModel);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    loadModel();
+  }, []);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -32,10 +48,10 @@ const HomeScreen = () => {
   };
   const classifyUsingMobilenet = async () => {
     try {
-      // Load mobilenet.
-      await tf.ready();
-      const model = await mobilenet.load();
-      setIsTfReady(true);
+      if (!model) {
+        console.log("Model not loaded.");
+        return;
+      }
       console.log("starting inference with picked image: " + pickedImage)
 
       // Convert image to tensor
@@ -47,10 +63,19 @@ const HomeScreen = () => {
       const imageTensor = decodeJpeg(raw);
       // Classify the tensor and show the result
       const prediction = await model.classify(imageTensor);
+      console.log("Prediction done");
+      imageTensor.dispose(); // release memory
       if (prediction && prediction.length > 0) {
+        console.log("Setting results...");
         setResult(
          `${prediction[0].className} (${prediction[0].probability.toFixed(3)})`
         );
+        // Dispose of model-generated tensors
+        prediction.forEach(item => {
+          if (item.rawImageData) {
+            tf.dispose(item.rawImageData);
+          }
+        });
       }
     } catch (err) {
      console.log(err);
@@ -115,10 +140,10 @@ const HomeScreen = () => {
       console.log(err);
     }
   }
-  useEffect(() => {
-    // classifyUsingCocoSSD()
-    classifyUsingMobilenet()
-  }, [pickedImage]);
+  // useEffect(() => {
+  //   // classifyUsingCocoSSD()
+  //   classifyUsingMobilenet()
+  // }, [pickedImage]);
   return (
     <View
       style={{
@@ -129,21 +154,28 @@ const HomeScreen = () => {
         justifyContent: 'center',
       }}
     >
-      <CustomButton
-        text="Take Photo"
-        onPress={openCamera}
-        type='PRIMARY'
-      ></CustomButton>
-      {isTfReady && <CustomButton
-        text="Select Image from gallery"
-        onPress={pickImage}
-        type='PRIMARY'
-/> }
+      <View>
+        <CustomButton
+          text="Take Photo"
+          onPress={openCamera}
+          type='PRIMARY'
+        ></CustomButton>
+        <CustomButton
+          text="Select Image from gallery"
+          onPress={pickImage}
+          type='PRIMARY'
+        />
+      </View>
+      
       <Image
         source={{ uri: pickedImage }}
         style={{ width: 500, height: 500, margin: 40 }}
      />
-
+      {pickedImage && isTfReady && <CustomButton
+        text="Detect Objects"
+        onPress={classifyUsingMobilenet}
+        type='PRIMARY'
+      />}
       <View style={{ width: '100%', height: 20 }} />
       {!isTfReady && <Text>Loading TFJS model...</Text>}
       {isTfReady && result === '' && <Text>Pick an image to classify!</Text>}
