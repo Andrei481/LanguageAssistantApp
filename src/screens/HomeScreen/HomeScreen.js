@@ -77,7 +77,7 @@ const HomeScreen = () => {
             tf.dispose(item.rawImageData);
           }
         });
-        navigation.navigate('Object Detection', { imageUri: pickedImage, prediction });
+        navigation.navigate('Object Detection', { pickedImage, prediction });
       }
     } catch (err) {
      console.log(err);
