@@ -67,6 +67,7 @@ const HomeScreen = () => {
       imageTensor.dispose(); // release memory
       if (prediction && prediction.length > 0) {
         console.log("Setting results...");
+        console.log(prediction[0].className);
         setResult(
          `${prediction[0].className} (${prediction[0].probability.toFixed(3)})`
         );
@@ -76,6 +77,7 @@ const HomeScreen = () => {
             tf.dispose(item.rawImageData);
           }
         });
+        navigation.navigate('Object Detection', { imageUri: pickedImage, prediction });
       }
     } catch (err) {
      console.log(err);
@@ -140,10 +142,6 @@ const HomeScreen = () => {
       console.log(err);
     }
   }
-  // useEffect(() => {
-  //   // classifyUsingCocoSSD()
-  //   classifyUsingMobilenet()
-  // }, [pickedImage]);
   return (
     <View
       style={{
@@ -171,15 +169,18 @@ const HomeScreen = () => {
         source={{ uri: pickedImage }}
         style={{ width: 500, height: 500, margin: 40 }}
      />
-      {pickedImage && isTfReady && <CustomButton
-        text="Detect Objects"
-        onPress={classifyUsingMobilenet}
-        type='PRIMARY'
-      />}
-      <View style={{ width: '100%', height: 20 }} />
-      {!isTfReady && <Text>Loading TFJS model...</Text>}
-      {isTfReady && result === '' && <Text>Pick an image to classify!</Text>}
-      {result !== '' && <Text>{result}</Text>}
+      {pickedImage && isTfReady ? (
+        <CustomButton
+          text="Detect Objects"
+          onPress={classifyUsingMobilenet}
+          type="PRIMARY"
+        />
+      ) : pickedImage && !isTfReady ? (
+        <Text>Loading TFJS Model...</Text>
+      ) : !pickedImage && isTfReady ? (
+        <Text>Pick an image to classify</Text>
+      ) : null}
+
     </View>
   );
 };
