@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Button } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
 import * as mobilenet from '@tensorflow-models/mobilenet';
@@ -18,6 +18,7 @@ const HomeScreen = () => {
   const [pickedImage, setPickedImage] = useState('');
   const [cameraPhoto, setCameraPhoto] = useState(null);
   const [model, setModel] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadModel = async () => {
@@ -39,7 +40,7 @@ const HomeScreen = () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: undefined,
+      aspect: [1,1],
       quality: 1,
     });
     if (!result.canceled) {
@@ -52,6 +53,7 @@ const HomeScreen = () => {
         console.log("Model not loaded.");
         return;
       }
+      setIsLoading(true);
       console.log("starting inference with picked image: " + pickedImage)
 
       // Convert image to tensor
@@ -77,10 +79,12 @@ const HomeScreen = () => {
             tf.dispose(item.rawImageData);
           }
         });
+        setIsLoading(false);
         navigation.navigate('Object Detection', { pickedImage, prediction });
       }
     } catch (err) {
      console.log(err);
+     setIsLoading(false);
     }
   };
   const saveToGallery = async (uri) => {
@@ -167,7 +171,7 @@ const HomeScreen = () => {
       
       <Image
         source={{ uri: pickedImage }}
-        style={{ width: 500, height: 500, margin: 40 }}
+        style={{ width: 200, height: 500, margin: 40 }}
      />
       {pickedImage && isTfReady ? (
         <CustomButton
@@ -180,7 +184,18 @@ const HomeScreen = () => {
       ) : !pickedImage && isTfReady ? (
         <Text>Pick an image to classify</Text>
       ) : null}
-
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={isLoading}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text>Detecting Objects...</Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
