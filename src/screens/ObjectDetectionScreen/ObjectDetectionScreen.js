@@ -5,7 +5,8 @@ import { languages } from '../../languages';
 import translate from 'translate-google-api';
 import useTranslation from '../../useTranslation';
 import * as Speech from 'expo-speech';
-import { CustomButton } from '../../components/CustomButton'
+import CustomButton from '../../components/CustomButton';
+
 
 const ObjectDetectionScreen = ({ route }) => {
   const { pickedImage, prediction } = route.params;
@@ -51,7 +52,7 @@ const ObjectDetectionScreen = ({ route }) => {
   };
 
   const speakInLanguage = async (text, languageCode) => {
-    await Speech.speak(text, { language: languageCode });
+    Speech.speak(text, { language: languageCode });
   };
 
   useEffect(() => {
@@ -89,11 +90,11 @@ const ObjectDetectionScreen = ({ route }) => {
         onSearch={handleSearch}
       />
       {selectedLanguage && <Text>{`${selectedLanguage} Translation: ${translatedClassName}`}</Text>}
-      {/* {translatedClassName && selectedLanguage && <CustomButton
+      {translatedClassName != null && selectedLanguage !== null && <CustomButton
         text="Listen"
         onPress={() => speakInLanguage(translatedClassName, selectedLanguage)}
         type="PRIMARY"
-      />} */}
+      />}
     </View>
   );
 };
