@@ -4,6 +4,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { languages } from '../../languages';
 import translate from 'translate-google-api';
 import useTranslation from '../../useTranslation';
+import * as Speech from 'expo-speech';
+import { CustomButton } from '../../components/CustomButton'
 
 const ObjectDetectionScreen = ({ route }) => {
   const { pickedImage, prediction } = route.params;
@@ -48,6 +50,10 @@ const ObjectDetectionScreen = ({ route }) => {
     }
   };
 
+  const speakInLanguage = async (text, languageCode) => {
+    await Speech.speak(text, { language: languageCode });
+  };
+
   useEffect(() => {
     if (selectedLanguage && objectInfo.className) {
       // Call translateText when selectedLanguage or objectInfo.className changes
@@ -82,7 +88,12 @@ const ObjectDetectionScreen = ({ route }) => {
         searchPlaceholder="Search for a language"
         onSearch={handleSearch}
       />
-      <Text>{`${selectedLanguage} Translation: ${translatedClassName}`}</Text>
+      {selectedLanguage && <Text>{`${selectedLanguage} Translation: ${translatedClassName}`}</Text>}
+      {/* {translatedClassName && selectedLanguage && <CustomButton
+        text="Listen"
+        onPress={() => speakInLanguage(translatedClassName, selectedLanguage)}
+        type="PRIMARY"
+      />} */}
     </View>
   );
 };

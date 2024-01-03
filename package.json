@@ -26,6 +26,7 @@
     "expo-file-system": "~15.4.5",
     "expo-image-picker": "~14.3.2",
     "expo-media-library": "~15.4.1",
+    "expo-speech": "^11.5.0",
     "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "jpeg-js": "^0.4.4",
