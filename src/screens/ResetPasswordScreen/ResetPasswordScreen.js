@@ -21,7 +21,10 @@ const ResetPasswordScreen = ({ route }) => {
                 Alert.alert("Password Reset", "Your password has been reset.");
             })
             .catch((error) => {
-                Alert.alert("error", error.response.data.message);
+                if (!error.response)
+                    Alert.alert("Network error", "Unable to connect to the server.");
+                else
+                    Alert.alert("Reset password error", error.response.data.message);
             });
 
     };

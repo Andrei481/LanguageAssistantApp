@@ -57,7 +57,7 @@ const SignupScreen = () => {
                 if (error.response) {
                     Alert.alert("Registration error", error.response.data.message);
                 } else {
-                    Alert.alert("Network error", 'No response from server');
+                    Alert.alert("Network error", 'Unable to connect to the server');
                 }
             });
     };
@@ -95,7 +95,7 @@ const SignupScreen = () => {
                     }
                 }
                 else {
-                    console.error(error);
+                    Alert.alert("Network error", 'Unable to connect to the server');
                 }
             });
 

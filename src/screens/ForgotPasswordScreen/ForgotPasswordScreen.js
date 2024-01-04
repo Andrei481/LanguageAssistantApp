@@ -26,7 +26,10 @@ const ForgotPasswordScreen = () => {
                 setDialogVisible(true);
             })
             .catch((error) => {
-                Alert.alert("Login error", error.response.data.message);
+                if (!error.response)
+                    Alert.alert("Network error", "Unable to connect to the server.");
+                else
+                    Alert.alert("Forgot password error", error.response.data.message);
             });
     };
 
@@ -55,7 +58,7 @@ const ForgotPasswordScreen = () => {
                     }
                 }
                 else {
-                    console.error(error);
+                    Alert.alert("Network error", "Unable to connect to the server.");
                 }
             });
 
