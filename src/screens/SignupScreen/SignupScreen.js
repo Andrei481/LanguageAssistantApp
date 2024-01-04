@@ -1,13 +1,17 @@
+import { serverIp, serverPort } from '../../network';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, Alert } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
-import { IP_ADDRESS } from 'react-native-dotenv';
+import Dialog from "react-native-dialog";
+
 
 
 const SignupScreen = () => {
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [username, setUsername] = useState('');
@@ -15,9 +19,26 @@ const SignupScreen = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const {height} = useWindowDimensions();
+    const { height } = useWindowDimensions();
     const navigation = useNavigation();
+
     const handleRegister = () => {
+        const usernameRegex = /^[a-zA-Z0-9._-]+$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$/;
+        const nameRegex = /^[a-zA-Z -]+$/;
+
+        if (!usernameRegex.test(username)) {
+            Alert.alert("Invalid Username", "Username can only contain letters, numbers, and the symbols: . _ -");
+            return;
+        }
+        if (!emailRegex.test(email)) {
+            Alert.alert("Invalid Email", "Please enter a valid email address.");
+            return;
+        }
+        if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
+            Alert.alert("Invalid Name", "Please enter your real name");
+            return;
+        }
         if (password !== confirmPassword) {
             Alert.alert("Password Mismatch", "Password and Confirm Password do not match.");
             return;
@@ -28,43 +49,60 @@ const SignupScreen = () => {
             email: email,
             password: password
         };
-        axios
-            .post(`http://${IP_ADDRESS}:3000/register`, user)
+        axios.post(`http://${serverIp}:${serverPort}/register`, user)
             .then((response) => {
-                console.log(response);
-                Alert.alert(
-                "Registration successful",
-                "You have been registered successfully"
-                );
+                setDialogVisible(true);
+            })
+            .catch((error) => {
+                if (error.response) {
+                    Alert.alert("Registration error", error.response.data.message);
+                } else {
+                    Alert.alert("Network error", 'No response from server');
+                }
+            });
+    };
+
+    const handleCancel = () => {
+        setDialogVisible(false);
+        //delete user from db
+    };
+
+    const handleOK = () => {
+        const data = {
+            identifier: username,
+            userCode: verificationCode
+        };
+
+        axios.post(`http://${serverIp}:${serverPort}/verify`, data)
+            .then(response => {
                 setFirstName("");
                 setLastName("");
                 setUsername("");
                 setEmail("");
                 setPassword("");
                 setConfirmPassword("");
+                setDialogVisible(false);
+                navigation.navigate('Home');
+                Alert.alert("Registration succesful", "Welcome!");
             })
-            .catch((error) => {
+            .catch(error => {
                 if (error.response) {
-                  // The server responded with a status code outside the 2xx range
-                  console.log("Server responded with an error:", error.response.status);
-                  console.log("Response data:", error.response.data);
-                } else if (error.request) {
-                  // No response was received
-                  console.log("No response received. The request may have failed.");
-                } else {
-                  // Something happened in setting up the request
-                  console.log("Error setting up the request:", error.message);
+                    if (error.response.status === 403) {
+                        Alert.alert("Incorrect Verification Code", "Please try again.");
+                    }
+                    else {
+                        console.log("Response data:", error.response.data);
+                    }
                 }
-              });
+                else {
+                    console.error(error);
+                }
+            });
+
+
     };
 
-    const onSignUpPressed = () => {
-        console.log('Sign Up Button Pressed');
-        navigation.navigate('Home');
-    };
-    
     const onLoginPressed = () => {
-        console.log("Login Button Pressed");
         navigation.navigate('Login');
     };
 
@@ -72,27 +110,27 @@ const SignupScreen = () => {
         <View style={styles.root}>
             <Text style={styles.text}>Sign up</Text>
             <CustomInput
-                placeholder="Enter First Name"
+                placeholder="First Name"
                 value={firstName}
                 setValue={setFirstName}
             />
             <CustomInput
-                placeholder="Enter Last Name"
+                placeholder="Last Name"
                 value={lastName}
                 setValue={setLastName}
             />
             <CustomInput
-                placeholder="Enter Username"
+                placeholder="Username"
                 value={username}
                 setValue={setUsername}
             />
-            <CustomInput 
-                placeholder="Enter Email Address"
+            <CustomInput
+                placeholder="Email Address"
                 value={email}
                 setValue={setEmail}
             />
             <CustomInput
-                placeholder="Enter Password"
+                placeholder="Password"
                 value={password}
                 setValue={setPassword}
                 secureTextEntry={true}
@@ -103,10 +141,11 @@ const SignupScreen = () => {
                 setValue={setConfirmPassword}
                 secureTextEntry={true}
             />
-            <View>
-                <CustomButton 
+            <View style={{ width: '50%', marginTop: 10 }}>
+                <CustomButton
                     text='Create Account' onPress={handleRegister}
                     type='PRIMARY'
+                    disabled={!firstName || !lastName || !username || !email || !password || !confirmPassword}
                 />
             </View>
             <View style={[styles.container_login, { top: height - 100 }]}>
@@ -116,6 +155,15 @@ const SignupScreen = () => {
                     type='TERTIARY'
                 />
             </View>
+            <Dialog.Container visible={dialogVisible}>
+                <Dialog.Title>Enter Verification Code</Dialog.Title>
+                <Dialog.Description>
+                    Please enter the verification code sent to your email
+                </Dialog.Description>
+                <Dialog.Input onChangeText={setVerificationCode} />
+                <Dialog.Button label="Cancel" onPress={handleCancel} />
+                <Dialog.Button label="OK" onPress={handleOK} />
+            </Dialog.Container>
         </View>
     );
 };
@@ -125,7 +173,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 50,
     },
-    
+
     text: {
         fontWeight: 'bold',
         color: 'darkblue',
@@ -139,7 +187,7 @@ const styles = StyleSheet.create({
         height: 100, // Set the height of your component
         justifyContent: 'center', // Vertically center content
         alignItems: 'center', // Horizontally center content
-      }
-  });
+    }
+});
 
 export default SignupScreen;
