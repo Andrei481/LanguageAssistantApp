@@ -1,7 +1,8 @@
 import React from 'react'
 import { View, Text, TextInput, StyleSheet } from 'react-native'
 
-const CustomInput = ({ value, setValue, placeholder, secureTextEntry }) => {
+const CustomInput = ({ value, setValue, placeholder, secureTextEntry, keyboardType, autoCapitalize }) => {
+    const autoCapitalizeDefault = autoCapitalize === undefined ? "none" : autoCapitalize;
     return (
         <View style={styles.container}>
             <TextInput
@@ -11,6 +12,8 @@ const CustomInput = ({ value, setValue, placeholder, secureTextEntry }) => {
                 value={value}
                 onChangeText={setValue}
                 secureTextEntry={secureTextEntry}
+                keyboardType={keyboardType}
+                autoCapitalize={autoCapitalizeDefault}
             />
         </View>
     );

@@ -49,6 +49,7 @@ const LoginScreen = () => {
                 placeholder="Enter Username or Email"
                 value={username}
                 setValue={setUsername}
+                keyboardType='email-address'
             />
             <CustomInput
                 placeholder="Enter Password"

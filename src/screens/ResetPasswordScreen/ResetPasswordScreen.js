@@ -36,11 +36,13 @@ const ResetPasswordScreen = ({ route }) => {
                 placeholder="New Password"
                 value={newPassword}
                 setValue={setNewPassword}
+                secureTextEntry={true}
             />
             <CustomInput
                 placeholder="Confirm New Password"
                 value={confirmNewPassword}
                 setValue={setConfirmNewPassword}
+                secureTextEntry={true}
             />
             <View>
                 <CustomButton

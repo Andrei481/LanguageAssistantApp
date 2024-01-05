@@ -113,11 +113,13 @@ const SignupScreen = () => {
                 placeholder="First Name"
                 value={firstName}
                 setValue={setFirstName}
+                autoCapitalize="words"
             />
             <CustomInput
                 placeholder="Last Name"
                 value={lastName}
                 setValue={setLastName}
+                autoCapitalize="words"
             />
             <CustomInput
                 placeholder="Username"
@@ -128,6 +130,7 @@ const SignupScreen = () => {
                 placeholder="Email Address"
                 value={email}
                 setValue={setEmail}
+                keyboardType='email-address'
             />
             <CustomInput
                 placeholder="Password"

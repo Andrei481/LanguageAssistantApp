@@ -76,6 +76,7 @@ const ForgotPasswordScreen = () => {
                 placeholder="Username or Email"
                 value={identifier}
                 setValue={setIdentifier}
+                keyboardType='email-address'
             />
             <View style={{ width: '50%', marginTop: 10 }}>
                 <CustomButton
