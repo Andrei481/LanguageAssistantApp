@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, BackHandler, TouchableOpacity } from 'react-native';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
 import * as mobilenet from '@tensorflow-models/mobilenet';
@@ -21,6 +21,16 @@ const HomeScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+
+        const onBackPress = () => {
+            /* This is needed so the back button does not
+             * take you to the register or reset password screens
+             */
+            navigation.replace('Login');
+            return true;
+        };
+        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
         const loadModel = async () => {
             try {
                 await tf.ready();
@@ -33,7 +43,12 @@ const HomeScreen = () => {
         };
 
         loadModel();
+
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        };
     }, []);
+
 
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
