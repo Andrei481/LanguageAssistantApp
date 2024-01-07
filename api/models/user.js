@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   verificationToken: String,
-  detections: [{ type: mongoose.Schema.Types.ObjectId, ref: "Detection" }],
 });
 
 
