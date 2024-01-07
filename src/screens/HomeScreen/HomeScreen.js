@@ -158,6 +158,9 @@ const HomeScreen = ({ route }) => {
             console.log(err);
         }
     }
+    const navigateToUserProfile = () => {
+        navigation.navigate('User Profile', { userId });
+    };
     return (
         <View
             style={{
@@ -179,6 +182,11 @@ const HomeScreen = ({ route }) => {
                     onPress={pickImage}
                     type='PRIMARY'
                 />
+                <CustomButton
+                    text="Go to profile"
+                    onPress={navigateToUserProfile}
+                    type='SECONDARY'
+                ></CustomButton>
             </View>
 
             <Image
