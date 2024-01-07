@@ -10,6 +10,8 @@ import * as jpeg from 'jpeg-js'
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
+import axios from "axios";
+import { serverIp, serverPort } from '../../network';
 
 const HomeScreen = ({ route }) => {
     const { userId } = route.params;
@@ -77,7 +79,7 @@ const HomeScreen = ({ route }) => {
                     className: prediction[0].className,
                     probability: prediction[0].probability.toFixed(3),
                 };
-                axios.post(`http://${serverIp}:${serverPort}/detect`, detectionData)
+                axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
                 .then(response => {
                     console.log(response.data.message);
                 })
