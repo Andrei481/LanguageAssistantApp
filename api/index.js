@@ -200,30 +200,48 @@ app.post("/login", async (req, res) => {
 // };
 
 
-app.post("/detection", async (req, res) => {
-  try {
-    const { userId, image, className, probability } = req.body;
+app.route("/detection")
+  .post(async (req, res) => {
+    try {
+      const { userId, image, className, probability } = req.body;
 
-    if (!userId || !image || !className || !probability) {
-      return res.status(400).json({ message: "Invalid request data" });
+      if (!userId || !image || !className || !probability) {
+        return res.status(400).json({ message: "Invalid request data" });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const detection = new Detection({
+        userId,
+        image,
+        className,
+        probability,
+      });
+      await detection.save();
+
+      res.status(200).json({ message: "Detection saved successfully" });
+    } catch (error) {
+      console.error("Error saving detection:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
+  })
+  .get(async (req, res) => {
+    try {
+      const { userId } = req.query;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      if (!userId) {
+        return res.status(400).json({ message: "Missing userId parameter" });
+      }
+
+      const detections = await Detection.find({ userId });
+
+      res.status(200).json({ detectedImages: detections });
+    } catch (error) {
+      console.error("Error fetching detected images:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
+  });
 
-    const detection = new Detection({
-      userId,
-      image,
-      className,
-      probability,
-    });
-    await detection.save();
-
-    res.status(200).json({ message: "Detection saved successfully" });
-  } catch (error) {
-    console.error("Error saving detection:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
