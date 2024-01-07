@@ -91,7 +91,7 @@ app.post("/verify", async (req, res) => {
     user.verificationToken = undefined;
     await user.save();
 
-    res.status(200).json({ message: "Email verified successfully" });
+    res.status(200).json({ message: "Email verified successfully", userId: user._id });
   } catch (error) {
     console.log("error getting token", error);
     res.status(500).json({ message: "Email verification failed" });
