@@ -19,6 +19,8 @@ const HomeScreen = () => {
     const [pickedImage, setPickedImage] = useState('');
     const [model, setModel] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isPickerOpen, setIsPickerOpen] = useState(false);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
 
     useEffect(() => {
         const loadModel = async () => {
@@ -36,15 +38,23 @@ const HomeScreen = () => {
     }, []);
 
     const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
-        if (!result.canceled) {
-            setPickedImage(result.assets[0].uri);
+        if (!isPickerOpen && !isCameraOpen) {
+            // No permissions request is necessary for launching the image library
+            // Set the flag to prevent further launches
+            setIsPickerOpen(true);
+
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+            });
+
+            setIsPickerOpen(false);
+
+            if (!result.canceled) {
+                setPickedImage(result.assets[0].uri);
+            }
         }
     };
 
@@ -60,19 +70,25 @@ const HomeScreen = () => {
     };
 
     const openCamera = async () => {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status === 'granted') {
-            const result = await ImagePicker.launchCameraAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
+        if (!isCameraOpen && !isPickerOpen) {
+            setIsCameraOpen(true);
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status === 'granted') {
+                // Set the flag to prevent further launches
 
-            if (!result.canceled) {
-                setPickedImage(result.assets[0].uri);
-                saveToGallery(result.assets[0].uri);
+                const result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 1,
+                });
+
+                if (!result.canceled) {
+                    setPickedImage(result.assets[0].uri);
+                    saveToGallery(result.assets[0].uri);
+                }
             }
+            setIsCameraOpen(false);
         }
     };
 
