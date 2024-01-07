@@ -1,10 +1,3 @@
-// index.js
-
-// File imports
-const secret = require('./secret');
-const network = require('./src/network');
-const User = require("./models/user");
-// Package imports
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -13,6 +6,11 @@ const bcrypt = require("bcrypt");
 const app = express();
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+
+const secret = require('./secret');
+const network = require('./src/network');
+const User = require("./models/user");
+const Detection = require("./models/detection")
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -180,20 +178,52 @@ app.post("/login", async (req, res) => {
   }
 });
 
-//endpoint to access all the users except the logged in the user
-app.get("/user/:userId", (req, res) => {
-  try {
-    const loggedInUserId = req.params.userId;
+const authenticateUser = async (req, res, next) => {
+  const token = req.header("Authorization");
 
-    User.find({ _id: { $ne: loggedInUserId } })
-      .then((users) => {
-        res.status(200).json(users);
-      })
-      .catch((error) => {
-        console.log("Error: ", error);
-        res.status(500).json("errror");
-      });
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized - No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    req.user = await User.findById(decoded.userId);
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized - Invalid token" });
+    }
+
+    next();
   } catch (error) {
-    res.status(500).json({ message: "error getting the users" });
+    return res.status(401).json({ message: "Unauthorized - Invalid token" });
+  }
+};
+
+
+app.post("/detection", authenticateUser, async (req, res) => {
+  try {
+    const { userId, image, className, probability } = req.body;
+
+    if (!userId || !image || !className || !probability) {
+      return res.status(400).json({ message: "Invalid request data" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const detection = new Detection({
+      userId,
+      image,
+      className,
+      probability,
+    });
+    await detection.save();
+
+    res.status(200).json({ message: "Detection saved successfully" });
+  } catch (error) {
+    console.error("Error saving detection:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
