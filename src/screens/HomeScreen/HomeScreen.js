@@ -158,7 +158,7 @@ const HomeScreen = () => {
             <View /* Top bar */
                 style={{ backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 50, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
-                <Text style={{ fontWeight: 'bold', fontSize: 20, marginRight: 10, color: 'white' }}>Welcome, user</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 20, marginRight: 10, color: 'white' }}>Language Assistant</Text>
                 <TouchableOpacity /* Profile icon */
                     onPress={() => {
                         // Navigate to the profile page here
