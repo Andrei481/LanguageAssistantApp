@@ -172,35 +172,35 @@ app.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, secretKey);
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, userId: user._id });
   } catch (error) {
     res.status(500).json({ message: "Login failed" });
   }
 });
 
-const authenticateUser = async (req, res, next) => {
-  const token = req.header("Authorization");
+// const authenticateUser = async (req, res, next) => {
+//   const token = req.header("Authorization");
 
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized - No token provided" });
-  }
+//   if (!token) {
+//     return res.status(401).json({ message: "Unauthorized - No token provided" });
+//   }
 
-  try {
-    const decoded = jwt.verify(token, secretKey);
-    req.user = await User.findById(decoded.userId);
+//   try {
+//     const decoded = jwt.verify(token, secretKey);
+//     req.user = await User.findById(decoded.userId);
 
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized - Invalid token" });
-    }
+//     if (!req.user) {
+//       return res.status(401).json({ message: "Unauthorized - Invalid token" });
+//     }
 
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Unauthorized - Invalid token" });
-  }
-};
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ message: "Unauthorized - Invalid token" });
+//   }
+// };
 
 
-app.post("/detection", authenticateUser, async (req, res) => {
+app.post("/detection", async (req, res) => {
   try {
     const { userId, image, className, probability } = req.body;
 
