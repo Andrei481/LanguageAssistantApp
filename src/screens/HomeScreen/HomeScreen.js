@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
@@ -21,6 +21,7 @@ const HomeScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const screenWidth = Dimensions.get('window').width;
 
     useEffect(() => {
         const loadModel = async () => {
@@ -38,58 +39,50 @@ const HomeScreen = () => {
     }, []);
 
     const pickImage = async () => {
-        if (!isPickerOpen && !isCameraOpen) {
-            // No permissions request is necessary for launching the image library
-            // Set the flag to prevent further launches
-            setIsPickerOpen(true);
+        if (isCameraOpen || isPickerOpen) return;   // Prevent multiple launches
 
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
+        setIsPickerOpen(true);
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1]
+        });
+        setIsPickerOpen(false);
 
-            setIsPickerOpen(false);
+        if (result.canceled) return;
 
-            if (!result.canceled) {
-                setPickedImage(result.assets[0].uri);
-            }
-        }
+        setPickedImage(result.assets[0].uri);
+
     };
 
     const saveToGallery = async (uri) => {
         try {
             const asset = await MediaLibrary.createAssetAsync(uri);
-            // You can now access the created asset, such as asset.id
         } catch (error) {
             console.error('Error saving to gallery:', error);
         }
-        Alert.alert("Image saved successfully");
-        // console.log("Saved to gallery");
     };
 
     const openCamera = async () => {
-        if (!isCameraOpen && !isPickerOpen) {
-            setIsCameraOpen(true);
-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            if (status === 'granted') {
-                // Set the flag to prevent further launches
+        if (isCameraOpen || isPickerOpen) return;
 
-                const result = await ImagePicker.launchCameraAsync({
-                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                    allowsEditing: true,
-                    aspect: [1, 1],
-                    quality: 1,
-                });
+        setIsCameraOpen(true);
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status === 'granted') {
 
-                if (!result.canceled) {
-                    setPickedImage(result.assets[0].uri);
-                    saveToGallery(result.assets[0].uri);
-                }
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1]
+            });
+
+            if (!result.canceled) {
+                setPickedImage(result.assets[0].uri);
+                saveToGallery(result.assets[0].uri);
             }
-            setIsCameraOpen(false);
         }
+        setIsCameraOpen(false);
+
     };
 
     const classifyUsingCocoSSD = async () => {
@@ -133,7 +126,7 @@ const HomeScreen = () => {
                 return;
             }
             setIsLoading(true);
-            console.log("starting inference with picked image: " + pickedImage)
+            console.log("Starting inference with picked image")
 
             // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
@@ -142,27 +135,29 @@ const HomeScreen = () => {
             const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
             const raw = new Uint8Array(imgBuffer)
             const imageTensor = decodeJpeg(raw);
+
             // Classify the tensor and show the result
             const prediction = await model.classify(imageTensor);
-            console.log("Prediction done");
             imageTensor.dispose(); // release memory
+
             if (prediction && prediction.length > 0) {
-                console.log("Setting results...");
-                console.log(prediction[0].className);
-                setResult(
-                    `${prediction[0].className} (${prediction[0].probability.toFixed(3)})`
-                );
+                console.log("Result: " + prediction[0].className);
+                setResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
+
                 // Dispose of model-generated tensors
                 prediction.forEach(item => {
                     if (item.rawImageData) {
                         tf.dispose(item.rawImageData);
                     }
                 });
-                setIsLoading(false);
+
                 navigation.navigate('Object Detection', { pickedImage, prediction });
             }
+            setIsLoading(false);
+
         } catch (err) {
             console.log(err);
+            Alert.alert("Detection error", err.message || "Something went wrong.");
             setIsLoading(false);
         }
     };
@@ -170,30 +165,29 @@ const HomeScreen = () => {
     return (
 
         <View /* Page */
-            style={{ flex: 1 }}>
+            style={{ height: '100%', alignItems: 'center' }}>
             <View /* Top bar */
-                style={{ backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 50, }}>
+                style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
-                <Text style={{ fontWeight: 'bold', fontSize: 20, marginRight: 10, color: 'white' }}>Language Assistant</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>Language Assistant</Text>
                 <TouchableOpacity /* Profile icon */
-                    onPress={() => {
-                        // Navigate to the profile page here
-                    }}
-                >
+                    onPress={() => { navigation.navigate('Profile'); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
 
+
+
             <View /* Image box */
-                style={{ margin: 20, marginTop: 40, flex: 0.5, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
+                style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
                 {pickedImage ?
                     <Image source={{ uri: pickedImage }} style={{ width: '100%', height: '100%' }} /> :
-                    <Text style={{ fontWeight: 'bold', fontSize: 32, color: 'darkblue', padding: 10 }}>Choose an image</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: (screenWidth) * 0.08, color: 'darkblue', padding: 10 }}>Choose an image</Text>
                 }
             </View>
 
             <View /* Area below image */
-                style={{ flex: 0.5, alignItems: 'center' }}>
+                style={{ width: '100%', flex: 1, alignItems: 'center' }}>
 
                 <View /* Detect objects button */
                     style={{ width: '50%' }}>
@@ -208,7 +202,7 @@ const HomeScreen = () => {
                 <Text style={{ opacity: isTfReady ? 0 : 1 }}>Loading TFJS Model...</Text>
 
                 <View /* Choose image bar */
-                    style={{ position: 'absolute', bottom: 90, flexDirection: 'row' }}>
+                    style={{ position: 'absolute', bottom: 50, flexDirection: 'row' }}>
                     <TouchableOpacity /* Camera button */
                         onPress={openCamera}
                     >
