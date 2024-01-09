@@ -26,10 +26,16 @@ const UserProfileScreen = ({ route }) => {
     
 
     const handleImagePress = (imageDetails) => {
-      const { userId, image } = imageDetails;
-      navigation.navigate('Object Detection', {
+      const { userId, image, className, probability } = imageDetails;
+    
+      const detectionInfo = {
         userId,
-        imageUri: image,
+        pickedImage: image,
+        prediction: [{ className, probability }],
+      };
+    
+      navigation.navigate('Object Detection', {
+        ...detectionInfo,
       });
     };
     
