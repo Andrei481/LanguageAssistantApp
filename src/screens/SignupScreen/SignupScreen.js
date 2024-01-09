@@ -1,6 +1,6 @@
 import { serverIp, serverPort } from '../../network';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
@@ -109,6 +109,7 @@ const SignupScreen = () => {
 
     return (
         <View style={styles.root}>
+            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
             <Text style={styles.text}>Sign up</Text>
             <CustomInput
                 placeholder="First Name"
@@ -145,7 +146,7 @@ const SignupScreen = () => {
                 setValue={setConfirmPassword}
                 secureTextEntry={true}
             />
-            <View style={{ width: '50%', marginTop: 10 }}>
+            <View style={{ width: 200, marginTop: 10 }}>
                 <CustomButton
                     text='Create Account' onPress={handleRegister}
                     type='PRIMARY'
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'darkblue',
         fontSize: 32,
-        paddingTop: 150,
+        paddingTop: 80,
         paddingBottom: 25,
     },
     container_login: {

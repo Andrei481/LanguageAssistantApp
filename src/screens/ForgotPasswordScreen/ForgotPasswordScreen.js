@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { serverIp, serverPort } from '../../network';
-import { View, Text, StyleSheet, useWindowDimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
@@ -68,6 +68,7 @@ const ForgotPasswordScreen = () => {
 
     return (
         <View style={styles.root}>
+            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
             <Text style={styles.text_title}>Forgot your password?</Text>
             <View>
                 <Text style={styles.text_help}>Don't worry, we can help you recover it.</Text>
@@ -78,7 +79,7 @@ const ForgotPasswordScreen = () => {
                 setValue={setIdentifier}
                 keyboardType='email-address'
             />
-            <View style={{ width: '50%', marginTop: 10 }}>
+            <View style={{ width: 200, marginTop: 10 }}>
                 <CustomButton
                     text='Password forgotten' onPress={onForgotPasswordPressed}
                     type='PRIMARY'
@@ -95,7 +96,7 @@ const ForgotPasswordScreen = () => {
             <Dialog.Container visible={dialogVisible}>
                 <Dialog.Title>Enter Verification Code</Dialog.Title>
                 <Dialog.Description>
-                    Please enter the verification code sent to your email
+                    Please enter the code sent to your email
                 </Dialog.Description>
                 <Dialog.Input onChangeText={setVerificationCode} />
                 <Dialog.Button label="Cancel" onPress={handleCancel} />

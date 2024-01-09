@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { serverIp, serverPort } from '../../network';
-import { View, Text, Image, StyleSheet, useWindowDimensions, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, useWindowDimensions, Alert, StatusBar } from 'react-native';
 import Logo from '../../../assets/Logo_1.png'
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
@@ -41,38 +41,44 @@ const LoginScreen = () => {
     };
 
     return (
-        <View style={styles.root}>
-            <Image source={Logo} style={[styles.logo, { height: height * 0.3 }]}
-                resizeMode="contain"
-            />
+        <View style={{ height: height, alignItems: 'center', justifyContent: 'center' }}>
+            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
 
-            <CustomInput
-                placeholder="Enter Username or Email"
-                value={username}
-                setValue={setUsername}
-                keyboardType='email-address'
-            />
-            <CustomInput
-                placeholder="Enter Password"
-                value={password}
-                setValue={setPassword}
-                secureTextEntry={true}
-            />
-            <View style={{ width: '50%', marginTop: 10 }}>
-                <CustomButton
-                    text='Login' onPress={handleLogin}
-                    type='PRIMARY'
-                    disabled={!username || !password}
-                />
+            <View /* Image box */
+                style={{ width: '70%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Image source={Logo} style={{ borderRadius: 30, width: '80%', height: '80%' }} />
             </View>
-            <View style={styles.container_resetPassword}>
-                <CustomButton
-                    text='Forgot your Password?'
-                    onPress={onForgotPasswordPressed}
-                    type='TERTIARY'
+            <View
+                style={{ paddingBottom: 150, width: '80%', alignItems: 'center', justifyContent: 'center' }}>
+                <CustomInput
+                    placeholder="Enter Username or Email"
+                    value={username}
+                    setValue={setUsername}
+                    keyboardType='email-address'
                 />
+                <CustomInput
+                    placeholder="Enter Password"
+                    value={password}
+                    setValue={setPassword}
+                    secureTextEntry={true}
+                />
+                <View style={{ width: 200, marginTop: 10 }}>
+                    <CustomButton
+                        text='Login' onPress={handleLogin}
+                        type='PRIMARY'
+                        disabled={!username || !password}
+                    />
+                </View>
+                <View style={styles.container_resetPassword}>
+                    <CustomButton
+                        text='Forgot your Password?'
+                        onPress={onForgotPasswordPressed}
+                        type='TERTIARY'
+                    />
+                </View>
+
             </View>
-            <View style={[styles.container_signup, { top: height - 100 }]}>
+            <View style={[styles.container_signup,]}>
                 <Text>Don't have an account?</Text>
                 <CustomButton
                     text='Sign Up!' onPress={onSignUpPressed}
@@ -86,24 +92,15 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
     root: {
         alignItems: 'center',
-        padding: 50,
     },
-    logo: {
-        width: '70%',
-        maxWidth: 3300,
-        maxHeight: 200,
-        borderRadius: 30,
-        marginBottom: 20,
-        marginTop: 65,
-    },
+
     container_resetPassword: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     container_signup: {
         position: 'absolute',
-        width: '100%',
-        height: 100, // Set the height of your component
+        bottom: 20,
         justifyContent: 'center', // Vertically center content
         alignItems: 'center', // Horizontally center content
     }
