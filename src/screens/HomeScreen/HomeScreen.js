@@ -30,7 +30,7 @@ const HomeScreen = ({ route }) => {
         const loadModel = async () => {
             try {
                 await tf.ready();
-                const mobilenetModel = await mobilenet.load();
+                const mobilenetModel = await mobilenet.load({ version: 1, alpha: 0.75 });
                 setIsTfReady(true);
                 setModel(mobilenetModel);
             } catch (err) {
