@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
 import * as mobilenet from '@tensorflow-models/mobilenet';
@@ -19,9 +20,11 @@ const HomeScreen = ({ route }) => {
     const [isTfReady, setIsTfReady] = useState(false);
     const [result, setResult] = useState('');
     const [pickedImage, setPickedImage] = useState('');
-    const [cameraPhoto, setCameraPhoto] = useState(null);
     const [model, setModel] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isPickerOpen, setIsPickerOpen] = useState(false);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const screenWidth = Dimensions.get('window').width;
 
     useEffect(() => {
         const loadModel = async () => {
@@ -39,92 +42,52 @@ const HomeScreen = ({ route }) => {
     }, []);
 
     const pickImage = async () => {
+        if (isCameraOpen || isPickerOpen) return;   // Prevent multiple launches
+
+        setIsPickerOpen(true);
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
+            aspect: [1, 1]
         });
-        if (!result.canceled) {
-            setPickedImage(result.uri);
-        }
-    };
-    const classifyUsingMobilenet = async () => {
-        try {
-            if (!model) {
-                console.log("Model not loaded.");
-                return;
-            }
-            setIsLoading(true);
-            console.log("starting inference with picked image: " + pickedImage)
+        setIsPickerOpen(false);
 
-            const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
-            const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
-            const raw = new Uint8Array(imgBuffer)
-            const imageTensor = decodeJpeg(raw);
-            const prediction = await model.classify(imageTensor);
-            console.log("Prediction done");
-            imageTensor.dispose(); // release memory
-            if (prediction && prediction.length > 0) {
-                console.log("Setting results...");
-                console.log(prediction[0].className);
-                setResult(
-                    `${prediction[0].className} (${prediction[0].probability.toFixed(3)})`
-                );
-                const detectionData = {
-                    userId,
-                    image: pickedImage,
-                    className: prediction[0].className,
-                    probability: prediction[0].probability.toFixed(3),
-                };
-                axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
-                .then(response => {
-                    console.log(response.data.message);
-                })
-                .catch(error => {
-                    console.error('Error saving detection:', error);
-                });
-                // Dispose of model-generated tensors
-                prediction.forEach(item => {
-                    if (item.rawImageData) {
-                        tf.dispose(item.rawImageData);
-                    }
-                });
-                setIsLoading(false);
-                navigation.navigate('Object Detection', { pickedImage, prediction });
-            }
-        } catch (err) {
-            console.log(err);
-            setIsLoading(false);
-        }
+        if (result.canceled) return;
+
+        setPickedImage(result.assets[0].uri);
+
     };
+
     const saveToGallery = async (uri) => {
         try {
             const asset = await MediaLibrary.createAssetAsync(uri);
         } catch (error) {
             console.error('Error saving to gallery:', error);
         }
-        Alert.alert("Image saved successfully");
-        // console.log("Saved to gallery");
     };
+
     const openCamera = async () => {
+        if (isCameraOpen || isPickerOpen) return;
+
+        setIsCameraOpen(true);
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status === 'granted') {
+
             const result = await ImagePicker.launchCameraAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: false,
-                aspect: [4, 3],
-                quality: 1,
+                allowsEditing: true,
+                aspect: [1, 1]
             });
 
             if (!result.canceled) {
-                setCameraPhoto(result.assets[0].uri);
+                setPickedImage(result.assets[0].uri);
                 saveToGallery(result.assets[0].uri);
             }
         }
+        setIsCameraOpen(false);
+
     };
+
     const classifyUsingCocoSSD = async () => {
         try {
             // Load Coco-SSD.
@@ -157,66 +120,145 @@ const HomeScreen = ({ route }) => {
         } catch (err) {
             console.log(err);
         }
-    }
-    const navigateToUserProfile = () => {
-        navigation.navigate('User Profile', { userId });
     };
+
+    const classifyUsingMobilenet = async () => {
+        try {
+            if (!model) {
+                console.log("Model not loaded.");
+                return;
+            }
+            setIsLoading(true);
+            console.log("Starting inference with picked image")
+
+            // Convert image to tensor
+            const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+            const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
+            const raw = new Uint8Array(imgBuffer)
+            const imageTensor = decodeJpeg(raw);
+
+            // Classify the tensor and show the result
+            const prediction = await model.classify(imageTensor);
+            imageTensor.dispose(); // release memory
+
+            if (prediction && prediction.length > 0) {
+                console.log("Result: " + prediction[0].className);
+                setResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
+
+		const detectionData = {
+                    userId,
+                    image: pickedImage,
+                    className: prediction[0].className,
+                    probability: prediction[0].probability.toFixed(3),
+                };
+                axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
+                .then(response => {
+                    console.log(response.data.message);
+                })
+                .catch(error => {
+                    console.error('Error saving detection:', error);
+                });
+
+                // Dispose of model-generated tensors
+                prediction.forEach(item => {
+                    if (item.rawImageData) {
+                        tf.dispose(item.rawImageData);
+                    }
+                });
+
+                navigation.navigate('Object Detection', { pickedImage, prediction });
+            }
+            setIsLoading(false);
+
+        } catch (err) {
+            console.log(err);
+            Alert.alert("Detection error", err.message || "Something went wrong.");
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <View
-            style={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-        >
-            <View>
-                <CustomButton
-                    text="Take Photo"
-                    onPress={openCamera}
-                    type='PRIMARY'
-                ></CustomButton>
-                <CustomButton
-                    text="Select Image from gallery"
-                    onPress={pickImage}
-                    type='PRIMARY'
-                />
-                <CustomButton
-                    text="Go to profile"
-                    onPress={navigateToUserProfile}
-                    type='SECONDARY'
-                ></CustomButton>
+
+        <View /* Page */
+            style={{ height: '100%', alignItems: 'center' }}>
+
+            <View /* Top bar */
+                style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
+                <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
+                <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>Language Assistant</Text>
+                <TouchableOpacity /* Profile icon */
+                    onPress={() => { navigation.navigate('User Profile'); }}>
+                    <Icon name="account-circle" size={30} color="#fff" />
+                </TouchableOpacity>
             </View>
 
-            <Image
-                source={{ uri: pickedImage }}
-                style={{ width: 200, height: 500, margin: 40 }}
-            />
-            {pickedImage && isTfReady ? (
-                <CustomButton
-                    text="Detect Objects"
-                    onPress={classifyUsingMobilenet}
-                    type="PRIMARY"
-                />
-            ) : pickedImage && !isTfReady ? (
-                <Text>Loading TFJS Model...</Text>
-            ) : !pickedImage && isTfReady ? (
-                <Text>Pick an image to classify</Text>
-            ) : null}
-            <Modal
-                transparent={true}
-                animationType="slide"
-                visible={isLoading}
-            >
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                    <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center' }}>
-                        <ActivityIndicator size="large" color="#0000ff" />
-                        <Text>Detecting Objects...</Text>
-                    </View>
+            <View /* Image box */
+                style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
+                {pickedImage ?
+                    <Image source={{ uri: pickedImage }} style={{ width: '100%', height: '100%' }} /> :
+                    <Text style={{ fontWeight: 'bold', fontSize: (screenWidth) * 0.08, color: 'darkblue', padding: 10 }}>Choose an image</Text>
+                }
+            </View>
+
+            <View /* Area below image */
+                style={{ width: '100%', flex: 1, alignItems: 'center' }}>
+
+                <View /* Detect objects button */
+                    style={{ width: '50%' }}>
+                    <CustomButton
+                        text="Detect objects"
+                        onPress={classifyUsingMobilenet}
+                        type="PRIMARY"
+                        disabled={pickedImage === '' || !isTfReady}
+                    />
                 </View>
-            </Modal>
+
+                <Text style={{ opacity: isTfReady ? 0 : 1 }}>Loading TFJS Model...</Text>
+
+                <View /* Choose image bar */
+                    style={{ position: 'absolute', bottom: 50, flexDirection: 'row' }}>
+
+                    <TouchableOpacity /* Camera button */
+                        onPress={openCamera}>
+                        <View style={{ borderTopLeftRadius: 13, borderBottomLeftRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
+                            <Icon name="photo-camera" size={40} color="#fff" />
+                        </View>
+                    </TouchableOpacity>
+
+                    <View /* Devider */
+                        style={{ width: 1, backgroundColor: 'white' }} />
+
+                    <TouchableOpacity /* Gallery button icon */
+                        onPress={pickImage} >
+                        <View style={{ borderTopRightRadius: 13, borderBottomRightRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
+                            <Icon name="image" size={40} color="#fff" />
+                        </View>
+                    </TouchableOpacity>
+
+                    <Modal  /* Detecting objects overlay */
+                        transparent={true}
+                        animationType="fade"
+                        visible={isLoading}
+                        statusBarTranslucent={true}
+                    >
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+                                <ActivityIndicator size="large" color="darkblue" />
+                                <Text>Detecting objects...</Text>
+                            </View>
+                        </View>
+
+                    </Modal>
+
+                </View>
+
+            </View>
+
         </View>
     );
 };
+
+
 export default HomeScreen;
