@@ -9,7 +9,7 @@ import * as Speech from 'expo-speech';
 import { useNavigation } from '@react-navigation/native';
 
 const ObjectDetectionScreen = ({ route }) => {
-    const { pickedImage, prediction } = route.params;
+    const { userId, pickedImage, prediction } = route.params;
     const [selectedLanguage, setSelectedLanguage] = useState(null);
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(null);
@@ -72,7 +72,7 @@ const ObjectDetectionScreen = ({ route }) => {
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>Language Assistant</Text>
                 <TouchableOpacity /* Profile icon */
-                    onPress={() => { navigation.navigate('User Profile'); }}>
+                    onPress={() => { navigation.navigate('User Profile', { userId }); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>

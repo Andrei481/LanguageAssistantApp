@@ -147,19 +147,19 @@ const HomeScreen = ({ route }) => {
                 console.log("Result: " + prediction[0].className);
                 setResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
 
-		const detectionData = {
+                const detectionData = {
                     userId,
                     image: pickedImage,
                     className: prediction[0].className,
                     probability: prediction[0].probability.toFixed(3),
                 };
                 axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
-                .then(response => {
-                    console.log(response.data.message);
-                })
-                .catch(error => {
-                    console.error('Error saving detection:', error);
-                });
+                    .then(response => {
+                        console.log(response.data.message);
+                    })
+                    .catch(error => {
+                        console.error('Error saving detection:', error);
+                    });
 
                 // Dispose of model-generated tensors
                 prediction.forEach(item => {
@@ -168,7 +168,7 @@ const HomeScreen = ({ route }) => {
                     }
                 });
 
-                navigation.navigate('Object Detection', { pickedImage, prediction });
+                navigation.navigate('Object Detection', { userId, pickedImage, prediction });
             }
             setIsLoading(false);
 
@@ -189,7 +189,7 @@ const HomeScreen = ({ route }) => {
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>Language Assistant</Text>
                 <TouchableOpacity /* Profile icon */
-                    onPress={() => { navigation.navigate('User Profile'); }}>
+                    onPress={() => { navigation.navigate('User Profile', { userId }); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
