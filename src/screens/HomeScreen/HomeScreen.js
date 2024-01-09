@@ -166,17 +166,16 @@ const HomeScreen = () => {
 
         <View /* Page */
             style={{ height: '100%', alignItems: 'center' }}>
+
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>Language Assistant</Text>
                 <TouchableOpacity /* Profile icon */
-                    onPress={() => { navigation.navigate('Profile'); }}>
+                    onPress={() => { navigation.navigate('User Profile'); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
-
-
 
             <View /* Image box */
                 style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
@@ -203,22 +202,25 @@ const HomeScreen = () => {
 
                 <View /* Choose image bar */
                     style={{ position: 'absolute', bottom: 50, flexDirection: 'row' }}>
+
                     <TouchableOpacity /* Camera button */
-                        onPress={openCamera}
-                    >
+                        onPress={openCamera}>
                         <View style={{ borderTopLeftRadius: 13, borderBottomLeftRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
                             <Icon name="photo-camera" size={40} color="#fff" />
                         </View>
                     </TouchableOpacity>
-                    <View style={{ width: 1, backgroundColor: 'white' }} />
+
+                    <View /* Devider */
+                        style={{ width: 1, backgroundColor: 'white' }} />
+
                     <TouchableOpacity /* Gallery button icon */
-                        onPress={pickImage}
-                    >
+                        onPress={pickImage} >
                         <View style={{ borderTopRightRadius: 13, borderBottomRightRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
                             <Icon name="image" size={40} color="#fff" />
                         </View>
                     </TouchableOpacity>
-                    <Modal
+
+                    <Modal  /* Detecting objects overlay */
                         transparent={true}
                         animationType="fade"
                         visible={isLoading}
@@ -230,10 +232,13 @@ const HomeScreen = () => {
                                 <Text>Detecting objects...</Text>
                             </View>
                         </View>
+
                     </Modal>
+
                 </View>
 
             </View>
+
         </View>
     );
 };
