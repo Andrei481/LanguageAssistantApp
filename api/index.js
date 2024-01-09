@@ -198,50 +198,59 @@ app.post("/login", async (req, res) => {
 //     return res.status(401).json({ message: "Unauthorized - Invalid token" });
 //   }
 // };
-
-
+  
 app.route("/detection")
-  .post(async (req, res) => {
-    try {
-      const { userId, image, className, probability } = req.body;
+.post(async (req, res) => {
+  try {
+    const { userId, className, probability, image } = req.body;
 
-      if (!userId || !image || !className || !probability) {
-        return res.status(400).json({ message: "Invalid request data" });
-      }
-
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      const detection = new Detection({
-        userId,
-        image,
-        className,
-        probability,
-      });
-      await detection.save();
-
-      res.status(200).json({ message: "Detection saved successfully" });
-    } catch (error) {
-      console.error("Error saving detection:", error);
-      res.status(500).json({ message: "Internal server error" });
+    if (!userId || !className || !probability || !image) {
+      return res.status(400).json({ message: "Invalid request data" });
     }
-  })
-  .get(async (req, res) => {
-    try {
-      const { userId } = req.query;
 
-      if (!userId) {
-        return res.status(400).json({ message: "Missing userId parameter" });
-      }
-
-      const detections = await Detection.find({ userId });
-
-      res.status(200).json({ detectedImages: detections });
-    } catch (error) {
-      console.error("Error fetching detected images:", error);
-      res.status(500).json({ message: "Internal server error" });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  });
+
+    const detection = new Detection({
+      userId,
+      className,
+      probability,
+      image: Buffer.from(image, 'base64'), // Convert base64 image to Buffer
+    });
+    await detection.save();
+
+    res.status(200).json({ message: "Detection saved successfully" });
+  } catch (error) {
+    console.error("Error saving detection:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
+.get(async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Missing userId parameter" });
+    }
+
+    const detections = await Detection.find({ userId });
+
+    // Convert each image buffer to base64
+    const detectedImages = detections.map((detection) => {
+      return {
+        image: detection.image.toString('base64'),
+        className: detection.className,
+        probability: detection.probability,
+        createdAt: detection.createdAt,
+      };
+    });
+
+    res.status(200).json({ detectedImages });
+  } catch (error) {
+    console.error("Error fetching detected images:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
