@@ -10,8 +10,11 @@ import * as jpeg from 'jpeg-js'
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
+import axios from "axios";
+import { serverIp, serverPort } from '../../network';
 
-const HomeScreen = () => {
+const HomeScreen = ({ route }) => {
+    const { userId } = route.params;
     const navigation = useNavigation();
     const [isTfReady, setIsTfReady] = useState(false);
     const [result, setResult] = useState('');
@@ -36,7 +39,6 @@ const HomeScreen = () => {
     }, []);
 
     const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
@@ -56,14 +58,12 @@ const HomeScreen = () => {
             setIsLoading(true);
             console.log("starting inference with picked image: " + pickedImage)
 
-            // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
                 encoding: FileSystem.EncodingType.Base64,
             });
             const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
             const raw = new Uint8Array(imgBuffer)
             const imageTensor = decodeJpeg(raw);
-            // Classify the tensor and show the result
             const prediction = await model.classify(imageTensor);
             console.log("Prediction done");
             imageTensor.dispose(); // release memory
@@ -73,6 +73,19 @@ const HomeScreen = () => {
                 setResult(
                     `${prediction[0].className} (${prediction[0].probability.toFixed(3)})`
                 );
+                const detectionData = {
+                    userId,
+                    image: pickedImage,
+                    className: prediction[0].className,
+                    probability: prediction[0].probability.toFixed(3),
+                };
+                axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
+                .then(response => {
+                    console.log(response.data.message);
+                })
+                .catch(error => {
+                    console.error('Error saving detection:', error);
+                });
                 // Dispose of model-generated tensors
                 prediction.forEach(item => {
                     if (item.rawImageData) {
@@ -90,7 +103,6 @@ const HomeScreen = () => {
     const saveToGallery = async (uri) => {
         try {
             const asset = await MediaLibrary.createAssetAsync(uri);
-            // You can now access the created asset, such as asset.id
         } catch (error) {
             console.error('Error saving to gallery:', error);
         }
@@ -146,6 +158,9 @@ const HomeScreen = () => {
             console.log(err);
         }
     }
+    const navigateToUserProfile = () => {
+        navigation.navigate('User Profile', { userId });
+    };
     return (
         <View
             style={{
@@ -167,6 +182,11 @@ const HomeScreen = () => {
                     onPress={pickImage}
                     type='PRIMARY'
                 />
+                <CustomButton
+                    text="Go to profile"
+                    onPress={navigateToUserProfile}
+                    type='SECONDARY'
+                ></CustomButton>
             </View>
 
             <Image

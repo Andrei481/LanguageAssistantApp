@@ -17,7 +17,7 @@ const ResetPasswordScreen = ({ route }) => {
         axios
             .post(`http://${serverIp}:${serverPort}/resetpass`, { identifier: identifier, newPassword: newPassword })
             .then((response) => {
-                navigation.navigate('Home');
+                navigation.navigate('Login');
                 Alert.alert("Password Reset", "Your password has been reset.");
             })
             .catch((error) => {

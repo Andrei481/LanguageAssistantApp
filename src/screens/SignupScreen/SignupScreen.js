@@ -82,7 +82,8 @@ const SignupScreen = () => {
                 setPassword("");
                 setConfirmPassword("");
                 setDialogVisible(false);
-                navigation.navigate('Home');
+                const userId = response.data.userId;
+                navigation.navigate("Home", { userId });
                 Alert.alert("Registration succesful", "Welcome!");
             })
             .catch(error => {
