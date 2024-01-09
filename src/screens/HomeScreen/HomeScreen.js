@@ -11,8 +11,11 @@ import * as jpeg from 'jpeg-js'
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
+import axios from "axios";
+import { serverIp, serverPort } from '../../network';
 
-const HomeScreen = () => {
+const HomeScreen = ({ route }) => {
+    const { userId } = route.params;
     const navigation = useNavigation();
     const [isTfReady, setIsTfReady] = useState(false);
     const [result, setResult] = useState('');
@@ -143,6 +146,20 @@ const HomeScreen = () => {
             if (prediction && prediction.length > 0) {
                 console.log("Result: " + prediction[0].className);
                 setResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
+
+		const detectionData = {
+                    userId,
+                    image: pickedImage,
+                    className: prediction[0].className,
+                    probability: prediction[0].probability.toFixed(3),
+                };
+                axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
+                .then(response => {
+                    console.log(response.data.message);
+                })
+                .catch(error => {
+                    console.error('Error saving detection:', error);
+                });
 
                 // Dispose of model-generated tensors
                 prediction.forEach(item => {

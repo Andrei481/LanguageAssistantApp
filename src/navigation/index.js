@@ -9,6 +9,7 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ObjectDetectionScreen from '../screens/ObjectDetectionScreen/ObjectDetectionScreen';
+import UserProfileScreen from '../screens/UserProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -23,6 +24,7 @@ const Navigation = () => {
                 <Stack.Screen name='Reset Password' component={ResetPasswordScreen} />
 
                 <Stack.Screen name='Object Detection' component={ObjectDetectionScreen} />
+                <Stack.Screen name='User Profile' component={UserProfileScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

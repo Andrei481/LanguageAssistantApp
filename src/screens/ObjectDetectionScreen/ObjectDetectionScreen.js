@@ -16,7 +16,6 @@ const ObjectDetectionScreen = ({ route }) => {
     const navigation = useNavigation();
     const screenWidth = Dimensions.get('window').width;
 
-    /* Filtered languages based on the search query */
     const [filteredLanguages, setFilteredLanguages] = useState(
         Object.entries(languages).map(([language, code]) => ({
             label: language,
@@ -59,7 +58,6 @@ const ObjectDetectionScreen = ({ route }) => {
 
     useEffect(() => {
         if (selectedLanguage && objectInfo.className) {
-            // Call translateText when selectedLanguage or objectInfo.className changes
             translateText(objectInfo.className, selectedLanguage);
         }
     }, [selectedLanguage, objectInfo.className]);

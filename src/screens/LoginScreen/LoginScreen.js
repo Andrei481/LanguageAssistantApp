@@ -27,9 +27,10 @@ const LoginScreen = () => {
         axios
             .post(`http://${serverIp}:${serverPort}/login`, { identifier: username, password: password, })
             .then((response) => {
-                const token = response.data.token;
+                const { token, userId } = response.data;
                 AsyncStorage.setItem("authToken", token);
-                navigation.navigate("Home");
+                AsyncStorage.setItem("userId", userId);
+                navigation.navigate("Home", { userId });
             })
             .catch((error) => {
                 if (!error.response)
