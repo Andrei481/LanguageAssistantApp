@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { serverIp, serverPort } from '../../network';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, StatusBar } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
@@ -31,6 +31,7 @@ const ResetPasswordScreen = ({ route }) => {
 
     return (
         <View style={styles.root}>
+            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
             <Text style={styles.text_title}>Reset Password</Text>
             <CustomInput
                 placeholder="New Password"
@@ -44,7 +45,7 @@ const ResetPasswordScreen = ({ route }) => {
                 setValue={setConfirmNewPassword}
                 secureTextEntry={true}
             />
-            <View>
+            <View style={{ width: 200, marginTop: 10 }}>
                 <CustomButton
                     text='Reset Password' onPress={onResetPasswordPressed}
                     type='PRIMARY'
