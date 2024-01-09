@@ -149,7 +149,7 @@ const HomeScreen = ({ route }) => {
 
                 const detectionData = {
                     userId,
-                    image: pickedImage,
+                    image: imgB64,
                     className: prediction[0].className,
                     probability: prediction[0].probability.toFixed(3),
                 };
