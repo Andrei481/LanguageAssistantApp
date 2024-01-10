@@ -157,7 +157,7 @@ const HomeScreen = ({ route }) => {
                     }
                 });
 
-                navigation.navigate('Object Detection', { userId, pickedImageHigh, prediction });
+                navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
             setisDetecting(false);
 
