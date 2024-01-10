@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'darkblue',
         fontSize: 32,
-        paddingTop: 80,
+        paddingTop: 70,
         paddingBottom: 25,
     },
     container_login: {

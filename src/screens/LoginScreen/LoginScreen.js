@@ -49,7 +49,7 @@ const LoginScreen = () => {
                 <Image source={Logo} style={{ borderRadius: 30, width: '80%', height: '80%' }} />
             </View>
             <View
-                style={{ paddingBottom: 150, width: '80%', alignItems: 'center', justifyContent: 'center' }}>
+                style={{ paddingBottom: 50, width: '80%', alignItems: 'center', justifyContent: 'center' }}>
                 <CustomInput
                     placeholder="Enter Username or Email"
                     value={username}
@@ -101,7 +101,6 @@ const styles = StyleSheet.create({
     container_signup: {
         position: 'absolute',
         bottom: 20,
-        justifyContent: 'center', // Vertically center content
         alignItems: 'center', // Horizontally center content
     }
 });
