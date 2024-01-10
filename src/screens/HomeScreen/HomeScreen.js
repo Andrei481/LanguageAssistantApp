@@ -138,7 +138,8 @@ const HomeScreen = ({ route }) => {
                 };
                 axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
                     .catch(error => {
-                        Alert.alert('Network error', error.message || "Unable to connect to the server.");
+                        if (error.response.status != 409)
+                            Alert.alert('Upload error', error.message || "Unable to connect to the server.");
                     });
 
                 // Dispose of model-generated tensors

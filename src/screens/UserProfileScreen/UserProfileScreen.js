@@ -67,7 +67,7 @@ const UserProfileScreen = ({ route }) => {
         );
     };
     const [isAccountInfoCollapsed, setAccountInfoCollapsed] = useState(false);
-    const [isDetectionHistoryCollapsed, setDetectionHistoryCollapsed] = useState(false);
+    const [isDetectionHistoryCollapsed, setDetectionHistoryCollapsed] = useState(true);
 
     const toggleAccountInfo = () => {
         setAccountInfoCollapsed(!isAccountInfoCollapsed);
