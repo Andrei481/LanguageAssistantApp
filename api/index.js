@@ -276,3 +276,26 @@ app.route("/deleteAllImages")
             res.status(500).json({ message: "Internal server error" });
         }
     });
+
+app.get('/user/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const userData = {
+            name: user.name,
+            username: user.username,
+            email: user.email
+        };
+
+        res.status(200).json(userData);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
