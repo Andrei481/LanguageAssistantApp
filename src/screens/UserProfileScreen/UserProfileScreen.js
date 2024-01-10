@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, FlatList, Image, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, FlatList, Image, TouchableOpacity, StatusBar, ScrollView, Alert, SafeAreaView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -15,10 +15,10 @@ const UserProfileScreen = ({ route }) => {
     const fetchDetectedImages = async () => {
         try {
             const response = await axios.get(`http://${serverIp}:${serverPort}/detection?userId=${userId}`);
-            console.log('Detected Images Response:', response.data);
+            // console.log('Detected Images Response:', response.data);
             setDetectedImages(response.data.detectedImages);
         } catch (error) {
-            console.error('Error fetching detected images:', error);
+            Alert.alert('Network error', "Unable to connect to the server.");
         }
     };
 
@@ -82,33 +82,54 @@ const UserProfileScreen = ({ route }) => {
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
-                <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Profile page</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Your profile</Text>
             </View>
 
             <View /* Below top bar */
-                style={{ margin: 20 }}>
-                <TouchableOpacity onPress={toggleAccountInfo}>
+                style={{ flex: 1, margin: 20 }}>
+
+                <TouchableOpacity /* Account information */
+                    onPress={toggleAccountInfo} >
                     <Text style={[styles.header]}>Account information {isAccountInfoCollapsed ? '▼' : '▲'}</Text>
                 </TouchableOpacity>
-                <Collapsible collapsed={isAccountInfoCollapsed}>
-                    <View>
-                        <Text>Name: </Text>
-                        <Text>Username: </Text>
-                        <Text>Email: </Text>
+                <Collapsible    /* Account information content */
+                    style={{ padding: 10 }} collapsed={isAccountInfoCollapsed}>
+                    <View style={{ flexDirection: 'row' }}>
+                        <View style={{ flex: 0.3 }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Name: </Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Username: </Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Email: </Text>
+                        </View>
+                        <View style={{ flex: 0.7 }}>
+                            <Text style={{ fontSize: 18 }}>Andrei Lazarov</Text>
+                            <Text style={{ fontSize: 18 }}>andy</Text>
+                            <Text style={{ fontSize: 18 }}>andrei_lazarov@yahoo.com</Text>
+                        </View>
                     </View>
                 </Collapsible>
 
-                <TouchableOpacity onPress={toggleDetectionHistory}>
-                    <Text style={[styles.header]}>Detection history {isDetectionHistoryCollapsed ? '▼' : '▲'}</Text>
+
+                <TouchableOpacity onPress={toggleDetectionHistory} >
+                    <Text style={[styles.header, { marginTop: 10 }]}>Detection history {isDetectionHistoryCollapsed ? '▼' : '▲'}</Text>
                 </TouchableOpacity>
-                <Collapsible collapsed={isDetectionHistoryCollapsed}>
-                    <View>
-
-                        <Text>Collapsible View 2 Content</Text>
+                <Collapsible collapsed={isDetectionHistoryCollapsed} key={isDetectionHistoryCollapsed} style={{ height: '99%' }}>
+                    <View style={{ flex: 0.8 }}>
+                        <FlatList
+                            data={detectedImages}
+                            keyExtractor={(item) => item._id}
+                            renderItem={renderDetectedImage}
+                        />
                     </View>
+                    <TouchableOpacity onPress={deleteAllImages} style={{ flex: 0.1, margin: 10 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 22, marginRight: 5 }}>Clear history</Text>
+                            <Icon name="delete" size={20} color="black" />
+                        </View>
+                    </TouchableOpacity>
                 </Collapsible>
+
             </View>
-        </View>
+        </View >
     );
 };
 
@@ -122,7 +143,7 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: 'bold',
         color: 'darkblue',
-        marginBottom: 10,
+
     },
     detectedImage: {
         width: 200,
