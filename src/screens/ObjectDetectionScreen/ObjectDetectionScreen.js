@@ -84,7 +84,7 @@ const ObjectDetectionScreen = ({ route }) => {
             <View /* Area below image */
                 style={{ flex: 0.95, width: screenWidth - 40, alignItems: 'center', justifyContent: 'space-around', maxHeight: 300, }}>
 
-                <View /* English row */
+                <View /* Detection results (english) row */
                     style={{ flex: 0.33, flexDirection: 'row' }}>
 
                     <View style={{ flex: 7.5, justifyContent: 'center', borderWidth: 1, backgroundColor: 'white', borderRadius: 13, alignItems: 'center', }}>
