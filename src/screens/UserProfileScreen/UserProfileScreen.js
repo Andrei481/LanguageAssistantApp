@@ -69,14 +69,22 @@ const UserProfileScreen = ({ route }) => {
 
 
     const renderDetectedImage = ({ item }) => {
+        const formattedClassName = item.className.replace(/, /g, ',\n');
+
         return (
-            <TouchableOpacity onPress={() => handleImagePress(item)}>
-                {item.image ? (
-                    <Image source={{ uri: `data:image/jpeg;base64,${item.image}` }} style={styles.detectedImage} />
-                ) : (
-                    <Text>No Image Available</Text>
-                )}
-            </TouchableOpacity>
+            <View style={{ flex: 1, flexDirection: 'row' }}>
+                <TouchableOpacity style={{ flex: 0.6 }} onPress={() => handleImagePress(item)}>
+                    {item.image ? (
+                        <Image source={{ uri: `data:image/jpeg;base64,${item.image}` }} style={{ borderRadius: 13, width: 200, height: 200, margin: 10, }} />
+                    ) : (
+                        <Text>No Image Available</Text>
+                    )}
+                </TouchableOpacity>
+                <View style={{ flex: 0.4, justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>{formattedClassName}</Text>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{`${(item.probability * 100).toFixed(2)}%`}</Text>
+                </View>
+            </View>
         );
     };
     const [isAccountInfoCollapsed, setAccountInfoCollapsed] = useState(false);
@@ -117,9 +125,9 @@ const UserProfileScreen = ({ route }) => {
                             <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Email: </Text>
                         </View>
                         <View style={{ flex: 0.7 }}>
-                            <Text style={{ fontSize: 18 }}>{userData.name || "last first"}</Text>
-                            <Text style={{ fontSize: 18 }}>{userData.username || "username"}</Text>
-                            <Text style={{ fontSize: 18 }}>{userData.email || "email"}</Text>
+                            <Text style={{ fontSize: 18 }}>{userData.name || " "}</Text>
+                            <Text style={{ fontSize: 18 }}>{userData.username || " "}</Text>
+                            <Text style={{ fontSize: 18 }}>{userData.email || " "}</Text>
                         </View>
                     </View>
                 </Collapsible>
@@ -127,7 +135,7 @@ const UserProfileScreen = ({ route }) => {
 
                 <TouchableOpacity /* Detection history */
                     onPress={toggleDetectionHistory} >
-                    <Text style={[styles.header, { marginTop: 10 }]}>Detection history {isDetectionHistoryCollapsed ? '▼' : '▲'}</Text>
+                    <Text style={[styles.header, { marginTop: 10, marginBottom: 10 }]}>Detection history {isDetectionHistoryCollapsed ? '▼' : '▲'}</Text>
                 </TouchableOpacity>
                 <Collapsible /* Detection history content */
                     collapsed={isDetectionHistoryCollapsed} key={isDetectionHistoryCollapsed} style={{ height: '99%' }}>
@@ -148,9 +156,7 @@ const UserProfileScreen = ({ route }) => {
                             </TouchableOpacity>
                         </View>
                     ) : (
-
                         <Text style={{ margin: 10, fontSize: 18 }}>Your results will appear here</Text>
-
                     )}
                 </Collapsible>
 
@@ -175,11 +181,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'darkblue',
 
-    },
-    detectedImage: {
-        width: 200,
-        height: 200,
-        margin: 10,
     },
 });
 
