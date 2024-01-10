@@ -9,7 +9,7 @@ import * as Speech from 'expo-speech';
 import { useNavigation } from '@react-navigation/native';
 
 const ObjectDetectionScreen = ({ route }) => {
-    const { userId, pickedImage, prediction } = route.params;
+    const { userId, pickedImageHigh, prediction } = route.params;
     const [selectedLanguage, setSelectedLanguage] = useState(null);
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(null);
@@ -79,7 +79,7 @@ const ObjectDetectionScreen = ({ route }) => {
 
             <View /* Image box */
                 style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
-                <Image source={{ uri: pickedImage }} style={{ width: '100%', height: '100%' }} />
+                <Image source={{ uri: pickedImageHigh }} style={{ width: '100%', height: '100%' }} />
             </View>
 
 

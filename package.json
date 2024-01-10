@@ -24,6 +24,7 @@
     "dotenv": "^16.3.1",
     "expo": "~49.0.13",
     "expo-file-system": "~15.4.5",
+    "expo-image-manipulator": "^11.5.0",
     "expo-image-picker": "~14.3.2",
     "expo-media-library": "~15.4.1",
     "expo-speech": "~11.3.0",

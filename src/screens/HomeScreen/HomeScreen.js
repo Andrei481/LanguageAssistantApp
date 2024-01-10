@@ -4,10 +4,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
 import * as mobilenet from '@tensorflow-models/mobilenet';
-import * as cocossd from '@tensorflow-models/coco-ssd'
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import * as jpeg from 'jpeg-js'
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
@@ -17,11 +16,12 @@ import { serverIp, serverPort } from '../../network';
 const HomeScreen = ({ route }) => {
     const { userId } = route.params;
     const navigation = useNavigation();
-    const [isTfReady, setIsTfReady] = useState(false);
-    const [result, setResult] = useState('');
-    const [pickedImage, setPickedImage] = useState('');
+    const [isModelLoaded, setisModelLoaded] = useState(false);
+    const [detectionResult, setDetectionResult] = useState('');
+    const [pickedImageHigh, setPickedImageHigh] = useState('');
+    const [pickedImageLow, setPickedImageLow] = useState('');
     const [model, setModel] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isDetecting, setisDetecting] = useState(false);
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const screenWidth = Dimensions.get('window').width;
@@ -31,7 +31,7 @@ const HomeScreen = ({ route }) => {
             try {
                 await tf.ready();
                 const mobilenetModel = await mobilenet.load({ version: 1, alpha: 0.75 });
-                setIsTfReady(true);
+                setisModelLoaded(true);
                 setModel(mobilenetModel);
             } catch (err) {
                 console.log(err);
@@ -45,22 +45,34 @@ const HomeScreen = ({ route }) => {
         if (isCameraOpen || isPickerOpen) return;   // Prevent multiple launches
 
         setIsPickerOpen(true);
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+
+        let pickerResult = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
-            aspect: [1, 1]
+            aspect: [1, 1],
+            quality: 1
         });
+
+        if (!pickerResult.canceled) {
+            setPickedImageHigh(pickerResult.assets[0].uri);
+
+            /* Compress image */
+            const compressValue = 0.6;
+            const widthValue = pickerResult.assets[0].width > 600 ? 600 : pickerResult.assets[0].width;
+            const manipulatedImage = await manipulateAsync(
+                pickerResult.assets[0].uri, [{ resize: { width: widthValue } }], { compress: compressValue, format: SaveFormat.JPEG }
+            );
+            setPickedImageLow(manipulatedImage.uri);
+
+            console.log("Image low: " + widthValue + "x" + widthValue + ", size: " + (await FileSystem.getInfoAsync(manipulatedImage.uri)).size / 1024 + " KB");
+            console.log("Image high: " + pickerResult.assets[0].width + "x" + pickerResult.assets[0].height + ", size: " + (await FileSystem.getInfoAsync(pickerResult.assets[0].uri)).size / 1024 + " KB");
+        }
+
         setIsPickerOpen(false);
-
-        if (result.canceled) return;
-
-        setPickedImage(result.assets[0].uri);
-
     };
 
     const saveToGallery = async (uri) => {
         try {
-            const asset = await MediaLibrary.createAssetAsync(uri);
+            await MediaLibrary.createAssetAsync(uri);
         } catch (error) {
             console.error('Error saving to gallery:', error);
         }
@@ -70,69 +82,47 @@ const HomeScreen = ({ route }) => {
         if (isCameraOpen || isPickerOpen) return;
 
         setIsCameraOpen(true);
+
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status === 'granted') {
 
-            const result = await ImagePicker.launchCameraAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            const cameraResult = await ImagePicker.launchCameraAsync({
                 allowsEditing: true,
-                aspect: [1, 1]
+                aspect: [1, 1],
+                quality: 1
             });
 
-            if (!result.canceled) {
-                setPickedImage(result.assets[0].uri);
-                saveToGallery(result.assets[0].uri);
+            if (!cameraResult.canceled) {
+                setPickedImageHigh(cameraResult.assets[0].uri);
+
+                /* Compress image */
+                const compressValue = 0.6;
+                const widthValue = cameraResult.assets[0].width > 600 ? 600 : cameraResult.assets[0].width;
+                const manipulatedImage = await manipulateAsync(
+                    cameraResult.assets[0].uri, [{ resize: { width: widthValue } }], { compress: compressValue, format: SaveFormat.JPEG }
+                );
+                setPickedImageLow(manipulatedImage.uri);
+
+                saveToGallery(pickedImageHigh);
+
+                console.log("Image low: " + widthValue + "x" + widthValue + ", size: " + (await FileSystem.getInfoAsync(manipulatedImage.uri)).size / 1024 + " KB");
+                console.log("Image high: " + cameraResult.assets[0].width + "x" + cameraResult.assets[0].height + ", size: " + (await FileSystem.getInfoAsync(cameraResult.assets[0].uri)).size / 1024 + " KB");
             }
         }
+
         setIsCameraOpen(false);
-
-    };
-
-    const classifyUsingCocoSSD = async () => {
-        try {
-            // Load Coco-SSD.
-            await tf.ready();
-            const model = await cocossd.load();
-            setIsTfReady(true);
-            console.log("starting inference with picked image: " + pickedImage)
-            // Convert image to tensor
-            const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
-            const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
-            const raw = new Uint8Array(imgBuffer)
-            const TO_UINT8ARRAY = true
-            const { width, height, data } = jpeg.decode(raw, TO_UINT8ARRAY)
-            const buffer = new Uint8Array(width * height * 3)
-            let offset = 0
-            for (let i = 0; i < buffer.length; i += 3) {
-                buffer[i] = data[offset]
-                buffer[i + 1] = data[offset + 1]
-                buffer[i + 2] = data[offset + 2]
-                offset += 4
-            }
-            const imageTensor = tf.tensor3d(buffer, [height, width, 3])
-            // Classify the tensor and show the result
-            const prediction = await model.detect(imageTensor);
-            if (prediction && prediction.length > 0) {
-                setResult(`${prediction[0].class} (${prediction[0].score.toFixed(3)}`);
-            }
-        } catch (err) {
-            console.log(err);
-        }
     };
 
     const classifyUsingMobilenet = async () => {
         try {
             if (!model) {
-                console.log("Model not loaded.");
+                Alert.alert("Detection error", "Model not loaded.");
                 return;
             }
-            setIsLoading(true);
-            console.log("Starting inference with picked image")
+            setisDetecting(true);
 
             // Convert image to tensor
-            const imgB64 = await FileSystem.readAsStringAsync(pickedImage, {
+            const imgB64 = await FileSystem.readAsStringAsync(pickedImageLow, {
                 encoding: FileSystem.EncodingType.Base64,
             });
             const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
@@ -144,8 +134,7 @@ const HomeScreen = ({ route }) => {
             imageTensor.dispose(); // release memory
 
             if (prediction && prediction.length > 0) {
-                console.log("Result: " + prediction[0].className);
-                setResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
+                setDetectionResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
 
                 const detectionData = {
                     userId,
@@ -168,14 +157,14 @@ const HomeScreen = ({ route }) => {
                     }
                 });
 
-                navigation.navigate('Object Detection', { userId, pickedImage, prediction });
+                navigation.navigate('Object Detection', { userId, pickedImageHigh, prediction });
             }
-            setIsLoading(false);
+            setisDetecting(false);
 
         } catch (err) {
             console.log(err);
             Alert.alert("Detection error", err.message || "Something went wrong.");
-            setIsLoading(false);
+            setisDetecting(false);
         }
     };
 
@@ -196,8 +185,8 @@ const HomeScreen = ({ route }) => {
 
             <View /* Image box */
                 style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
-                {pickedImage ?
-                    <Image source={{ uri: pickedImage }} style={{ width: '100%', height: '100%' }} /> :
+                {pickedImageHigh ?
+                    <Image source={{ uri: pickedImageHigh }} style={{ width: '100%', height: '100%' }} /> :
                     <Text style={{ fontWeight: 'bold', fontSize: (screenWidth) * 0.08, color: 'darkblue', padding: 10 }}>Choose an image</Text>
                 }
             </View>
@@ -211,11 +200,11 @@ const HomeScreen = ({ route }) => {
                         text="Detect objects"
                         onPress={classifyUsingMobilenet}
                         type="PRIMARY"
-                        disabled={pickedImage === '' || !isTfReady}
+                        disabled={pickedImageLow === '' || !isModelLoaded}
                     />
                 </View>
 
-                <Text style={{ opacity: isTfReady ? 0 : 1 }}>Loading TFJS Model...</Text>
+                <Text style={{ opacity: isModelLoaded ? 0 : 1 }}>Loading TFJS Model...</Text>
 
                 <View /* Choose image bar */
                     style={{ position: 'absolute', bottom: 40, flexDirection: 'row' }}>
@@ -240,7 +229,7 @@ const HomeScreen = ({ route }) => {
                     <Modal  /* Detecting objects overlay */
                         transparent={true}
                         animationType="fade"
-                        visible={isLoading}
+                        visible={isDetecting}
                         statusBarTranslucent={true}
                     >
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
