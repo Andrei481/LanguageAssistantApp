@@ -34,7 +34,7 @@ const HomeScreen = ({ route }) => {
                 setisModelLoaded(true);
                 setModel(mobilenetModel);
             } catch (err) {
-                console.log(err);
+                Alert.alert("Model error", err.message || "Something went wrong.");
             }
         };
 
@@ -74,7 +74,7 @@ const HomeScreen = ({ route }) => {
         try {
             await MediaLibrary.createAssetAsync(uri);
         } catch (error) {
-            console.error('Error saving to gallery:', error);
+            Alert.alert("Error", 'Unable to save to gallery');
         }
     };
 
@@ -162,7 +162,6 @@ const HomeScreen = ({ route }) => {
             setisDetecting(false);
 
         } catch (err) {
-            console.log(err);
             Alert.alert("Detection error", err.message || "Something went wrong.");
             setisDetecting(false);
         }
