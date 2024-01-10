@@ -13,19 +13,32 @@ const UserProfileScreen = ({ route }) => {
     const navigation = useNavigation();
     const [detectedImages, setDetectedImages] = useState([]);
     const [dialogVisible, setDialogVisible] = useState(false);
+    const [userData, setUserData] = useState({});
 
     const fetchDetectedImages = async () => {
         try {
             const response = await axios.get(`http://${serverIp}:${serverPort}/detection?userId=${userId}`);
             setDetectedImages(response.data.detectedImages);
+            if (response.data.detectedImages == '') console.log("empty");
         } catch (error) {
             Alert.alert('Network error', "Unable to connect to the server.");
+        }
+    };
+
+    const fetchUserData = async () => {
+        try {
+            const response = await axios.get(`http://${serverIp}:${serverPort}/user/${userId}`);
+            setUserData(response.data);
+
+        } catch (error) {
+            Alert.alert('Network error', error.message);
         }
     };
 
     useEffect(() => {
 
         fetchDetectedImages();
+        fetchUserData();
 
     }, [userId]);
 
@@ -104,31 +117,41 @@ const UserProfileScreen = ({ route }) => {
                             <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Email: </Text>
                         </View>
                         <View style={{ flex: 0.7 }}>
-                            <Text style={{ fontSize: 18 }}>Andrei Lazarov</Text>
-                            <Text style={{ fontSize: 18 }}>andy</Text>
-                            <Text style={{ fontSize: 18 }}>andrei_lazarov@yahoo.com</Text>
+                            <Text style={{ fontSize: 18 }}>{userData.name || "last first"}</Text>
+                            <Text style={{ fontSize: 18 }}>{userData.username || "username"}</Text>
+                            <Text style={{ fontSize: 18 }}>{userData.email || "email"}</Text>
                         </View>
                     </View>
                 </Collapsible>
 
 
-                <TouchableOpacity onPress={toggleDetectionHistory} >
+                <TouchableOpacity /* Detection history */
+                    onPress={toggleDetectionHistory} >
                     <Text style={[styles.header, { marginTop: 10 }]}>Detection history {isDetectionHistoryCollapsed ? '▼' : '▲'}</Text>
                 </TouchableOpacity>
-                <Collapsible collapsed={isDetectionHistoryCollapsed} key={isDetectionHistoryCollapsed} style={{ height: '99%' }}>
-                    <View style={{ flex: 0.8 }}>
-                        <FlatList
-                            data={detectedImages}
-                            keyExtractor={(item) => item._id}
-                            renderItem={renderDetectedImage}
-                        />
-                    </View>
-                    <TouchableOpacity onPress={setDialogVisible} style={{ flex: 0.1, margin: 10 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: 22, marginRight: 5 }}>Clear history</Text>
-                            <Icon name="delete" size={20} color="black" />
+                <Collapsible /* Detection history content */
+                    collapsed={isDetectionHistoryCollapsed} key={isDetectionHistoryCollapsed} style={{ height: '99%' }}>
+                    {detectedImages != '' ? (
+                        <View style={{ flex: 1 }}>
+                            <View style={{ flex: 0.8 }}>
+                                <FlatList
+                                    data={detectedImages}
+                                    keyExtractor={(item) => item._id}
+                                    renderItem={renderDetectedImage}
+                                />
+                            </View>
+                            <TouchableOpacity onPress={setDialogVisible} style={{ flex: 0.1, margin: 10 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 22, marginRight: 5 }}>Clear history</Text>
+                                    <Icon name="delete" size={20} color="black" />
+                                </View>
+                            </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
+                    ) : (
+
+                        <Text style={{ margin: 10, fontSize: 18 }}>Your results will appear here</Text>
+
+                    )}
                 </Collapsible>
 
             </View>
