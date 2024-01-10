@@ -239,6 +239,7 @@ app.route("/detection")
             // Convert each image buffer to base64
             const detectedImages = detections.map((detection) => {
                 return {
+                    _id: detection._id,
                     image: detection.image.toString('base64'),
                     className: detection.className,
                     probability: detection.probability,
