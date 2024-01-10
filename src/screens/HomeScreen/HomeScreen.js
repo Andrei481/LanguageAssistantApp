@@ -218,7 +218,7 @@ const HomeScreen = ({ route }) => {
                 <Text style={{ opacity: isTfReady ? 0 : 1 }}>Loading TFJS Model...</Text>
 
                 <View /* Choose image bar */
-                    style={{ position: 'absolute', bottom: 50, flexDirection: 'row' }}>
+                    style={{ position: 'absolute', bottom: 40, flexDirection: 'row' }}>
 
                     <TouchableOpacity /* Camera button */
                         onPress={openCamera}>
