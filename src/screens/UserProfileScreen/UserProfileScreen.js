@@ -6,11 +6,13 @@ import axios from 'axios';
 import { serverIp, serverPort } from '../../network';
 import * as FileSystem from 'expo-file-system';
 import Collapsible from 'react-native-collapsible';
+import Dialog from "react-native-dialog";
 
 const UserProfileScreen = ({ route }) => {
     const { userId } = route.params;
     const navigation = useNavigation();
     const [detectedImages, setDetectedImages] = useState([]);
+    const [dialogVisible, setDialogVisible] = useState(false);
 
     const fetchDetectedImages = async () => {
         try {
@@ -32,8 +34,10 @@ const UserProfileScreen = ({ route }) => {
         try {
             await axios.delete(`http://${serverIp}:${serverPort}/deleteAllImages`, { data: { userId: userId }, });
             await fetchDetectedImages();
+            setDialogVisible(false);
         } catch (error) {
-            console.error('Error deleting images:', error);
+            setDialogVisible(false);
+            Alert.alert('Network error', "Unable to connect to the server.");
         }
     };
 
@@ -120,7 +124,7 @@ const UserProfileScreen = ({ route }) => {
                             renderItem={renderDetectedImage}
                         />
                     </View>
-                    <TouchableOpacity onPress={deleteAllImages} style={{ flex: 0.1, margin: 10 }}>
+                    <TouchableOpacity onPress={setDialogVisible} style={{ flex: 0.1, margin: 10 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ fontWeight: 'bold', fontSize: 22, marginRight: 5 }}>Clear history</Text>
                             <Icon name="delete" size={20} color="black" />
@@ -129,6 +133,11 @@ const UserProfileScreen = ({ route }) => {
                 </Collapsible>
 
             </View>
+            <Dialog.Container visible={dialogVisible}>
+                <Dialog.Title>Are you sure you want to delete all images?</Dialog.Title>
+                <Dialog.Button label="Cancel" onPress={() => { setDialogVisible(false) }} />
+                <Dialog.Button label="Delete" onPress={deleteAllImages} />
+            </Dialog.Container>
         </View >
     );
 };
