@@ -56,9 +56,12 @@ app.post("/register", async (req, res) => {
         const newUser = new User({ name, username, email, password: hashedPassword });
 
         newUser.verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-        subject = 'Language Assistant registration';
-        text = `Hello, ${name}! Here is your verification code: ${newUser.verificationToken}`;
-        network.sendMail(email, subject, text);
+
+        const emailTemplate = require('./email_templates/register');
+        const { subject, text, html } = emailTemplate(name, newUser.verificationToken);
+
+        network.sendMail(email, subject, text, html);
+
         await newUser.save();
 
         res.status(200).json({ message: "Registration successful" });
@@ -104,9 +107,12 @@ app.post("/forgotpass", async (req, res) => {
         }
 
         user.verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-        subject = 'Language Assistant password reset';
-        text = `Hello, ${user.name}! Here is your password reset code: ${user.verificationToken}`;
-        network.sendMail(user.email, subject, text);
+
+        const emailTemplate = require('./email_templates/resetpass');
+        const { subject, text, html } = emailTemplate(user.name, user.verificationToken);
+
+        network.sendMail(user.email, subject, text, html);
+
         await user.save();
 
         res.status(200).json({ message: "Email sent" });
