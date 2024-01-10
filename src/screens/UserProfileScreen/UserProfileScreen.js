@@ -4,7 +4,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { serverIp, serverPort } from '../../network';
-import * as FileSystem from 'expo-file-system';
 import Collapsible from 'react-native-collapsible';
 import Dialog from "react-native-dialog";
 
