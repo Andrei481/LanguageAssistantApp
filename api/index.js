@@ -206,6 +206,12 @@ app.route("/detection")
                 return res.status(404).json({ message: "User not found" });
             }
 
+            // Check if user already uploaded this photo
+            const existingDetection = await Detection.findOne({ userId, className });
+            if (existingDetection) {
+                return res.status(409).json({ message: "Image already exists for this class" });
+            }
+
             const detection = new Detection({
                 userId,
                 className,
