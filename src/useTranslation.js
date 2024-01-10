@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Alert } from 'react-native';
 import translate from 'translate-google-api';
 
 const useTranslation = (text, targetLanguage) => {
@@ -8,11 +9,9 @@ const useTranslation = (text, targetLanguage) => {
         const translateText = async () => {
             try {
                 const translation = await translate(text, { to: targetLanguage });
-                console.log("Translation: ", translation[0]);
                 setTranslatedText(translation[0]);
             } catch (error) {
-                console.error('Translation error:', error);
-                console.log("Text: ", text);
+                Alert.alert("Translation error", error.message);
                 setTranslatedText(text);
             }
         };

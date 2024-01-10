@@ -54,7 +54,7 @@ const ForgotPasswordScreen = () => {
                         Alert.alert("Incorrect Verification Code", "Please try again.");
                     }
                     else {
-                        console.log("Response data:", error.response.data);
+                        Alert.alert("Network error", "Unable to connect to the server.");
                     }
                 }
                 else {

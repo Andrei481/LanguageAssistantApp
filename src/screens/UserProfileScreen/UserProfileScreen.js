@@ -17,7 +17,6 @@ const UserProfileScreen = ({ route }) => {
     const fetchDetectedImages = async () => {
         try {
             const response = await axios.get(`http://${serverIp}:${serverPort}/detection?userId=${userId}`);
-            // console.log('Detected Images Response:', response.data);
             setDetectedImages(response.data.detectedImages);
         } catch (error) {
             Alert.alert('Network error', "Unable to connect to the server.");
@@ -42,11 +41,11 @@ const UserProfileScreen = ({ route }) => {
     };
 
     const handleImagePress = (imageDetails) => {
-        const { userId, image, className, probability } = imageDetails;
+        const { userIdFromImage, image, className, probability } = imageDetails;
 
         const detectionInfo = {
             userId,
-            pickedImage: image,
+            pickedImage: `data:image/jpeg;base64,${image}`,
             prediction: [{ className, probability }],
         };
 
@@ -68,7 +67,7 @@ const UserProfileScreen = ({ route }) => {
         );
     };
     const [isAccountInfoCollapsed, setAccountInfoCollapsed] = useState(false);
-    const [isDetectionHistoryCollapsed, setDetectionHistoryCollapsed] = useState(false);
+    const [isDetectionHistoryCollapsed, setDetectionHistoryCollapsed] = useState(true);
 
     const toggleAccountInfo = () => {
         setAccountInfoCollapsed(!isAccountInfoCollapsed);

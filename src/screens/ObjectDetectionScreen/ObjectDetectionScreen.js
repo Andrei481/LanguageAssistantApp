@@ -43,11 +43,9 @@ const ObjectDetectionScreen = ({ route }) => {
     const translateText = async (text, targetLanguage) => {
         try {
             const translation = await translate(text, { to: targetLanguage });
-            console.log("Translation: ", translation[0]);
             return translation[0];
         } catch (error) {
-            console.error('Translation error:', error);
-            console.log("Text: ", text);
+            Alert.alert("Translation error", error.message);
             return text;
         }
     };
