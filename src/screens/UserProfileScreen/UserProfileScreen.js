@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, useWindowDimensions, FlatList, Image, Touchable
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { serverIp, serverPort } from '../../network';
+import * as FileSystem from 'expo-file-system';
 
 const UserProfileScreen = ({ route }) => {
     const { userId } = route.params;
-    const { height } = useWindowDimensions();
     const navigation = useNavigation();
     const [detectedImages, setDetectedImages] = useState([]);
     console.log({userId});
@@ -26,24 +26,32 @@ const UserProfileScreen = ({ route }) => {
     
 
     const handleImagePress = (imageDetails) => {
-        navigation.navigate('ObjectDetection', {
-        imageDetails,
-        });
+      const { userId, image, className, probability } = imageDetails;
+    
+      const detectionInfo = {
+        userId,
+        pickedImage: image,
+        prediction: [{ className, probability }],
+      };
+    
+      navigation.navigate('Object Detection', {
+        ...detectionInfo,
+      });
     };
+    
 
     const renderDetectedImage = ({ item }) => {
-        console.log('Image URL:', item.imageUrl);
-      
-        return (
-          <TouchableOpacity onPress={() => handleImagePress(item)}>
-            {item.imageUrl ? (
-              <Image source={{ uri: item.imageUrl }} style={styles.detectedImage} />
-            ) : (
-              <Text>No Image Available</Text>
-            )}
-          </TouchableOpacity>
-        );
-      };
+      return (
+        <TouchableOpacity onPress={() => handleImagePress(item)}>
+          {item.image ? (
+            <Image source={{ uri: `data:image/jpeg;base64,${item.image}` }} style={styles.detectedImage} />
+          ) : (
+            <Text>No Image Available</Text>
+          )}
+        </TouchableOpacity>
+      );
+    };
+    
       
 
     return (
