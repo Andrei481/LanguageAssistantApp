@@ -45,7 +45,7 @@ const ObjectDetectionScreen = ({ route }) => {
             const translation = await translate(text, { to: targetLanguage });
             return translation[0];
         } catch (error) {
-            Alert.alert("Translation error", error);
+            Alert.alert("Translation error", error.message);
             return text;
         }
     };

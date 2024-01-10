@@ -33,8 +33,8 @@ const HomeScreen = ({ route }) => {
                 const mobilenetModel = await mobilenet.load({ version: 1, alpha: 0.75 });
                 setisModelLoaded(true);
                 setModel(mobilenetModel);
-            } catch (err) {
-                Alert.alert("Model error", err.message || "Something went wrong.");
+            } catch (error) {
+                Alert.alert("Model error", error.message || "Something went wrong.");
             }
         };
 
@@ -62,9 +62,6 @@ const HomeScreen = ({ route }) => {
                 pickerResult.assets[0].uri, [{ resize: { width: widthValue } }], { compress: compressValue, format: SaveFormat.JPEG }
             );
             setPickedImageLow(manipulatedImage.uri);
-
-            console.log("Image low: " + widthValue + "x" + widthValue + ", size: " + (await FileSystem.getInfoAsync(manipulatedImage.uri)).size / 1024 + " KB");
-            console.log("Image high: " + pickerResult.assets[0].width + "x" + pickerResult.assets[0].height + ", size: " + (await FileSystem.getInfoAsync(pickerResult.assets[0].uri)).size / 1024 + " KB");
         }
 
         setIsPickerOpen(false);
@@ -104,9 +101,6 @@ const HomeScreen = ({ route }) => {
                 setPickedImageLow(manipulatedImage.uri);
 
                 await saveToGallery(cameraResult.assets[0].uri);
-
-                console.log("Image low: " + widthValue + "x" + widthValue + ", size: " + (await FileSystem.getInfoAsync(manipulatedImage.uri)).size / 1024 + " KB");
-                console.log("Image high: " + cameraResult.assets[0].width + "x" + cameraResult.assets[0].height + ", size: " + (await FileSystem.getInfoAsync(cameraResult.assets[0].uri)).size / 1024 + " KB");
             }
         }
 
@@ -143,11 +137,8 @@ const HomeScreen = ({ route }) => {
                     probability: prediction[0].probability.toFixed(3),
                 };
                 axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
-                    .then(response => {
-                        console.log(response.data.message);
-                    })
                     .catch(error => {
-                        console.error('Error saving detection:', error);
+                        Alert.alert('Network error', error.message || "Unable to connect to the server.");
                     });
 
                 // Dispose of model-generated tensors
