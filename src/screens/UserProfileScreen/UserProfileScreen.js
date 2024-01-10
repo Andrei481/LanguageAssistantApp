@@ -19,7 +19,6 @@ const UserProfileScreen = ({ route }) => {
         try {
             const response = await axios.get(`http://${serverIp}:${serverPort}/detection?userId=${userId}`);
             setDetectedImages(response.data.detectedImages);
-            if (response.data.detectedImages == '') console.log("empty");
         } catch (error) {
             Alert.alert('Network error', "Unable to connect to the server.");
         }
