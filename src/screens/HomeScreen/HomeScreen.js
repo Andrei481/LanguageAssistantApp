@@ -103,7 +103,7 @@ const HomeScreen = ({ route }) => {
                 );
                 setPickedImageLow(manipulatedImage.uri);
 
-                saveToGallery(pickedImageHigh);
+                await saveToGallery(cameraResult.assets[0].uri);
 
                 console.log("Image low: " + widthValue + "x" + widthValue + ", size: " + (await FileSystem.getInfoAsync(manipulatedImage.uri)).size / 1024 + " KB");
                 console.log("Image high: " + cameraResult.assets[0].width + "x" + cameraResult.assets[0].height + ", size: " + (await FileSystem.getInfoAsync(cameraResult.assets[0].uri)).size / 1024 + " KB");
