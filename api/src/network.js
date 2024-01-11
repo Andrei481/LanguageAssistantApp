@@ -76,7 +76,7 @@ exports.postIp = function (ip, port) {
         });
 }
 
-exports.sendMail = function (recipient, subject, text) {
+exports.sendMail = function (recipient, subject, text, html) {
 
     const transporter = nodemailer.createTransport({
         host: 'smtp-mail.outlook.com', // Hotmail's SMTP server
@@ -93,7 +93,8 @@ exports.sendMail = function (recipient, subject, text) {
         from: secret.lilyMail,
         to: recipient,
         subject: subject,
-        text: text
+        // text: text
+        html: html
     };
 
     // Send the email
