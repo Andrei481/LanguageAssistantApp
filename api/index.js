@@ -171,27 +171,6 @@ app.post("/login", async (req, res) => {
     }
 });
 
-// const authenticateUser = async (req, res, next) => {
-//   const token = req.header("Authorization");
-
-//   if (!token) {
-//     return res.status(401).json({ message: "Unauthorized - No token provided" });
-//   }
-
-//   try {
-//     const decoded = jwt.verify(token, secretKey);
-//     req.user = await User.findById(decoded.userId);
-
-//     if (!req.user) {
-//       return res.status(401).json({ message: "Unauthorized - Invalid token" });
-//     }
-
-//     next();
-//   } catch (error) {
-//     return res.status(401).json({ message: "Unauthorized - Invalid token" });
-//   }
-// };
-
 app.route("/detection")
     .post(async (req, res) => {
         try {
