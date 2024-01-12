@@ -7,6 +7,7 @@ import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as NavigationBar from 'expo-navigation-bar';
 
 const LoginScreen = () => {
     const [username, setUsername] = useState('');
@@ -14,6 +15,11 @@ const LoginScreen = () => {
 
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
+
+    useEffect(() => {
+        NavigationBar.setButtonStyleAsync('dark');
+        NavigationBar.setBackgroundColorAsync('#f2f2f2');
+    }, []);
 
     const onForgotPasswordPressed = () => {
         navigation.navigate('Forgot Password');
