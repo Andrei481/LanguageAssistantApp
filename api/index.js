@@ -285,3 +285,43 @@ app.get('/user/:userId', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.route('/progressPoints')
+    .post(async (req, res) => {
+        try {
+            const { userId, progressIncrement } = req.body;
+            const user = await User.findById(userId);
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            if (user.progressPoints === 0) {
+                user.progressPoints += 100;
+            } else {
+                user.progressPoints += progressIncrement;
+            }
+
+            await user.save();
+
+            res.status(200).json({ message: 'Progress points updated successfully', progressPoints: user.progressPoints });
+        } catch (error) {
+            console.error("Error updating progress points:", error);
+            res.status(500).json({ message: 'Internal server error at POST progressPoints' });
+        }
+    })
+    .get(async (req, res) => {
+        try {
+            const { userId } = req.body;
+            const user = await User.findById(userId);
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.status(200).json({ progressPoints: user.progressPoints });
+        } catch (error) {
+            console.error("Error getting progress points:", error);
+            res.status(500).json({ message: 'Internal server error at GET progressPoints' });
+        }
+    });
