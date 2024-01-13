@@ -1,6 +1,6 @@
 # Language Assistant
 
-Learn new languages with Augmented Reality!
+Learn new languages with AI!
 
 ### Team A²:
 
