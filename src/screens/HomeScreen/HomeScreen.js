@@ -148,7 +148,11 @@ const HomeScreen = ({ route }) => {
                         tf.dispose(item.rawImageData);
                     }
                 });
-
+                axios.post(`http://${serverIp}:${serverPort}/updateProgressPoints`, { userId, pointsToAdd: 10 })
+                .catch(error => {
+                    if (error.response.status != 409)
+                        Alert.alert('Upload error', error.message || "Unable to connect to the server.");
+                });
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
             setisDetecting(false);
