@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   verificationToken: String,
+  progressPoints: {type: Number, required: true, default: 0}
 });
 
 
