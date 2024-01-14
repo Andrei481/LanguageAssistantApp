@@ -121,11 +121,13 @@ const UserProfileScreen = ({ route }) => {
                             <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Name: </Text>
                             <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Username: </Text>
                             <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Email: </Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Level: </Text>
                         </View>
                         <View style={{ flex: 0.7 }}>
-                            <Text style={{ fontSize: 18 }}>{userData.name || " "}</Text>
-                            <Text style={{ fontSize: 18 }}>{userData.username || " "}</Text>
-                            <Text style={{ fontSize: 18 }}>{userData.email || " "}</Text>
+                            <Text style={{ fontSize: 17 }}>{userData.name || " "}</Text>
+                            <Text style={{ fontSize: 17 }}>{userData.username || " "}</Text>
+                            <Text style={{ fontSize: 17 }}>{userData.email || " "}</Text>
+                            <Text style={{ fontSize: 17 }}>{userData.progressPoints || " "}</Text>
                         </View>
                     </View>
                 </Collapsible>

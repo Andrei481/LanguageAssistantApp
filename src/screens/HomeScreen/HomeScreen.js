@@ -25,6 +25,9 @@ const HomeScreen = ({ route }) => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [userLevel, setUserLevel] = useState(0);
+    const [isProgressBarVisible, setIsProgressBarVisible] = useState(false);
+    const [progressPoints, setProgressPoints] = useState(0);
+    const [nextLevelPoints, setNextLevelPoints] = useState(100);
     const screenWidth = Dimensions.get('window').width;
 
     useEffect(() => {
@@ -152,6 +155,13 @@ const HomeScreen = ({ route }) => {
                 });
     
                 await axios.post(`http://${serverIp}:${serverPort}/progressPoints`, { userId, progressIncrement: 10 })
+                .then(response => {
+                    const updatedProgressPoints = response.data.progressPoints || 0;
+                    setProgressPoints(updatedProgressPoints);
+                    setUserLevel(calculateUserLevel(progressPoints));
+                    const nextLevel = calculateUserLevel(updatedProgressPoints) + 1;
+                    setNextLevelPoints(nextLevel * 100);
+                })
                     .catch(error => {
                         if (error.response && error.response.status !== 409) {
                             Alert.alert('Update error', error.message || "Unable to connect to the server.");
@@ -169,16 +179,23 @@ const HomeScreen = ({ route }) => {
     };
 
     const calculateUserLevel = (progressPoints) => {
-        return Math.floor(progressPoints / 100) + 1;
+        return Math.floor(progressPoints / 100);
+    };
+
+    const handleLevelClick = () => {
+        setIsProgressBarVisible(!isProgressBarVisible);
     };
 
     useEffect(() => {
         const fetchUserProgressPoints = async () => {
             try {
-                const response = await axios.get(`http://${serverIp}:${serverPort}/progressPoints`, { params: { userId } });
+                const response = await axios.get(`http://${serverIp}:${serverPort}/progressPoints?userId=${userId}`);
                 const progressPoints = response.data.progressPoints || 0;
     
                 setUserLevel(calculateUserLevel(progressPoints));
+                setProgressPoints(progressPoints);
+                const nextLevel = calculateUserLevel(progressPoints) + 1;
+                setNextLevelPoints(nextLevel * 100);
             } catch (error) {
                 console.error('Error fetching progress points:', error);
                 if (error.response) {
@@ -201,12 +218,25 @@ const HomeScreen = ({ route }) => {
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
-                <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text>
+                {/* <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text> */}
+                <TouchableOpacity onPress={handleLevelClick}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white', padding: 10 }}>Level {userLevel}</Text>
+                </TouchableOpacity>
                 <TouchableOpacity /* Profile icon */
                     onPress={() => { navigation.navigate('User Profile', { userId }); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
+
+            {isProgressBarVisible && (
+                <View style={{ width: '100%', alignItems: 'center' }}>
+                    <Text>Progress</Text>
+                    <Text>{progressPoints}/{nextLevelPoints}</Text>
+                    <View style={{ width: 200, height: 20, backgroundColor: '#ccc', borderRadius: 10, marginTop: 10 }}>
+                        <View style={{ width: `${(progressPoints / nextLevelPoints) * 100}%`, height: '100%', backgroundColor: '#6499E9', borderRadius: 10 }} />
+                    </View>
+                </View>
+            )}
 
             <View /* Image box */
                 style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
