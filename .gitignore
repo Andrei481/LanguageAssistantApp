@@ -37,3 +37,6 @@ yarn-error.*
 # secrets
 .env
 api/secret.js
+
+# logs
+*.log
