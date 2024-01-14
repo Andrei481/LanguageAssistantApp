@@ -11,6 +11,8 @@ const secret = require('./secret');
 const network = require('./src/network');
 const User = require("./models/user");
 const Detection = require("./models/detection")
+const sharp = require('sharp');
+const sharpPhash = require('sharp-phash');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -191,17 +193,21 @@ app.route("/detection")
                 return res.status(404).json({ message: "User not found" });
             }
 
+            const imageBuffer = Buffer.from(image, 'base64');
+            const pHashValue = await sharpPhash(imageBuffer);
+
             // Check if user already uploaded this photo
-            const existingDetection = await Detection.findOne({ userId, className });
+            const existingDetection = await Detection.findOne({ pHashValue });
             if (existingDetection) {
-                return res.status(409).json({ message: "Image already exists for this class" });
+                return res.status(409).json({ message: "Image already exists" });
             }
 
             const detection = new Detection({
                 userId,
                 className,
                 probability,
-                image: Buffer.from(image, 'base64'), // Convert base64 image to Buffer
+                image: imageBuffer,
+                pHashValue
             });
             await detection.save();
 

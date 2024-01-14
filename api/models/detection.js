@@ -5,6 +5,7 @@ const detectionSchema = new mongoose.Schema({
   image: { type: Buffer, required: true },
   className: { type: String, required: true },
   probability: { type: Number, required: true },
+  pHashValue: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 
