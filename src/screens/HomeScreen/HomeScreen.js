@@ -24,6 +24,7 @@ const HomeScreen = ({ route }) => {
     const [isDetecting, setisDetecting] = useState(false);
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const [userLevel, setUserLevel] = useState(0);
     const screenWidth = Dimensions.get('window').width;
 
     useEffect(() => {
@@ -166,6 +167,30 @@ const HomeScreen = ({ route }) => {
             setisDetecting(false);
         }
     };
+
+    const calculateUserLevel = (progressPoints) => {
+        return Math.floor(progressPoints / 100) + 1;
+    };
+
+    useEffect(() => {
+        const fetchUserProgressPoints = async () => {
+            try {
+                const response = await axios.get(`http://${serverIp}:${serverPort}/progressPoints`, { params: { userId } });
+                const progressPoints = response.data.progressPoints || 0;
+    
+                setUserLevel(calculateUserLevel(progressPoints));
+            } catch (error) {
+                console.error('Error fetching progress points:', error);
+                if (error.response) {
+                    console.error('Response status:', error.response.status);
+                    console.error('Response data:', error.response.data);
+                }
+            }
+        };
+    
+        fetchUserProgressPoints();
+    }, [userId]);
+    
     
 
     return (
