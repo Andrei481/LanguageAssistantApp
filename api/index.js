@@ -312,7 +312,7 @@ app.route('/progressPoints')
     })
     .get(async (req, res) => {
         try {
-            const { userId } = req.body;
+            const { userId } = req.query;
             const user = await User.findById(userId);
 
             if (!user) {
