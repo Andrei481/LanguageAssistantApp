@@ -114,7 +114,7 @@ const HomeScreen = ({ route }) => {
                 return;
             }
             setisDetecting(true);
-
+    
             // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImageLow, {
                 encoding: FileSystem.EncodingType.Base64,
@@ -122,46 +122,51 @@ const HomeScreen = ({ route }) => {
             const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
             const raw = new Uint8Array(imgBuffer)
             const imageTensor = decodeJpeg(raw);
-
+    
             // Classify the tensor and show the result
             const prediction = await model.classify(imageTensor);
             imageTensor.dispose(); // release memory
-
+    
             if (prediction && prediction.length > 0) {
                 setDetectionResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
-
+    
                 const detectionData = {
                     userId,
                     image: imgB64,
                     className: prediction[0].className,
                     probability: prediction[0].probability.toFixed(3),
                 };
-                axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
+    
+                await axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
                     .catch(error => {
-                        if (error.response.status != 409)
+                        if (error.response && error.response.status !== 409) {
                             Alert.alert('Upload error', error.message || "Unable to connect to the server.");
+                        }
                     });
-
-                // Dispose of model-generated tensors
+    
                 prediction.forEach(item => {
                     if (item.rawImageData) {
                         tf.dispose(item.rawImageData);
                     }
                 });
-                axios.post(`http://${serverIp}:${serverPort}/updateProgressPoints`, { userId, pointsToAdd: 10 })
-                .catch(error => {
-                    if (error.response.status != 409)
-                        Alert.alert('Upload error', error.message || "Unable to connect to the server.");
-                });
+    
+                await axios.post(`http://${serverIp}:${serverPort}/progressPoints`, { userId, progressIncrement: 10 })
+                    .catch(error => {
+                        if (error.response && error.response.status !== 409) {
+                            Alert.alert('Update error', error.message || "Unable to connect to the server.");
+                        }
+                    });
+    
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
             setisDetecting(false);
-
+    
         } catch (err) {
             Alert.alert("Detection error", err.message || "Something went wrong.");
             setisDetecting(false);
         }
     };
+    
 
     return (
 
