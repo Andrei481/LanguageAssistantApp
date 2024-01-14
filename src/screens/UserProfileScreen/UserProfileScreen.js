@@ -8,7 +8,7 @@ import Collapsible from 'react-native-collapsible';
 import Dialog from "react-native-dialog";
 
 const UserProfileScreen = ({ route }) => {
-    const { userId } = route.params;
+    const { userId, userLevel } = route.params;
     const navigation = useNavigation();
     const [detectedImages, setDetectedImages] = useState([]);
     const [dialogVisible, setDialogVisible] = useState(false);
@@ -127,7 +127,7 @@ const UserProfileScreen = ({ route }) => {
                             <Text style={{ fontSize: 17 }}>{userData.name || " "}</Text>
                             <Text style={{ fontSize: 17 }}>{userData.username || " "}</Text>
                             <Text style={{ fontSize: 17 }}>{userData.email || " "}</Text>
-                            <Text style={{ fontSize: 17 }}>{userData.progressPoints || " "}</Text>
+                            <Text style={{ fontSize: 17 }}>{userLevel || " "}</Text>
                         </View>
                     </View>
                 </Collapsible>

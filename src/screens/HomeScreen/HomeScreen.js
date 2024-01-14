@@ -196,6 +196,7 @@ const HomeScreen = ({ route }) => {
                 setProgressPoints(progressPoints);
                 const nextLevel = calculateUserLevel(progressPoints) + 1;
                 setNextLevelPoints(nextLevel * 100);
+
             } catch (error) {
                 console.error('Error fetching progress points:', error);
                 if (error.response) {
@@ -223,7 +224,7 @@ const HomeScreen = ({ route }) => {
                     <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white', padding: 10 }}>Level {userLevel}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity /* Profile icon */
-                    onPress={() => { navigation.navigate('User Profile', { userId }); }}>
+                    onPress={() => { navigation.navigate('User Profile', { userId, userLevel }); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
