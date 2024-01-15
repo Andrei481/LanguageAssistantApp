@@ -304,14 +304,11 @@ app.route('/progressPoints')
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            console.log("incremented points");
             user.progressPoints += progressIncrement;
             if (user.progressPoints >= user.level * 100) {
                 user.progressPoints = 0;
                 user.level += 1;
             }
-            console.log("new points:", user.progressPoints);
-            console.log("new level:", user.level);
 
             await user.save();
 
