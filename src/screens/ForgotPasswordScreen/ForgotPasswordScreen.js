@@ -94,10 +94,10 @@ const ForgotPasswordScreen = () => {
                 />
             </View>
             <Dialog.Container visible={dialogVisible}>
-                <Dialog.Title>Enter Verification Code</Dialog.Title>
-                <Dialog.Description>
-                    Please enter the code sent to your email
-                </Dialog.Description>
+                <Dialog.Title
+                    style={{ fontWeight: 'bold', fontSize: 18 }}>
+                    Please enter the verification code sent to your email
+                </Dialog.Title>
                 <Dialog.Input onChangeText={setVerificationCode} />
                 <Dialog.Button label="Cancel" onPress={handleCancel} />
                 <Dialog.Button label="OK" onPress={handleOK} />
