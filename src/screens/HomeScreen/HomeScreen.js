@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
@@ -69,6 +69,13 @@ const HomeScreen = ({ route }) => {
 
     const saveToGallery = async (uri) => {
         try {
+            if (Platform.OS === 'android' && Platform.Version < 30) {
+                const { status } = await MediaLibrary.requestPermissionsAsync();
+                if (status !== 'granted') {
+                    Alert.alert("Permission error", 'Unable to save to gallery');
+                    return;
+                }
+            }
             await MediaLibrary.createAssetAsync(uri);
         } catch (error) {
             Alert.alert("Error", 'Unable to save to gallery');
