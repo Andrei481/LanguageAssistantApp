@@ -1,15 +1,27 @@
 {
   "expo": {
-    "name": "LanguageCompanionApp",
-    "slug": "LanguageCompanionApp",
-    "version": "1.0.0",
+    "name": "Language Assistant",
+    "Description": "Learn new languages with AI!",
+    "slug": "LanguageAssistant",
+    "version": "0.2.0",
+    "githubUrl": "https://github.com/Andrei481/LanguageAssistantApp",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#F2F2F2",
+      "translucent": true
+    },
+    "androidNavigationBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#F2F2F2",
+      "translucent": true
+    },
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/splashscreen.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#F2F2F2"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,13 +36,13 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#6499E9"
       },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.anonymous.LanguageCompanionApp"
+      "package": "com.a2.languageassistant"
     },
     "web": {
       "favicon": "./assets/favicon.png"
