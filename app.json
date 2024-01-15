@@ -1,7 +1,6 @@
 {
   "expo": {
     "name": "Language Assistant",
-    "Description": "Learn new languages with AI!",
     "slug": "LanguageAssistant",
     "version": "0.2.0",
     "githubUrl": "https://github.com/Andrei481/LanguageAssistantApp",
@@ -9,8 +8,7 @@
     "icon": "./assets/icon.png",
     "androidStatusBar": {
       "barStyle": "dark-content",
-      "backgroundColor": "#F2F2F2",
-      "translucent": true
+      "backgroundColor": "#F2F2F2"
     },
     "androidNavigationBar": {
       "barStyle": "dark-content",
@@ -33,6 +31,16 @@
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
       }
     },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

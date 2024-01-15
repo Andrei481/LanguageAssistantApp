@@ -38,7 +38,8 @@
     "react-native-screens": "~3.22.0",
     "react-native-vector-icons": "^10.0.3",
     "react-native-worklets-core": "^0.2.4",
-    "translate-google-api": "^1.0.4"
+    "translate-google-api": "^1.0.4",
+    "expo-build-properties": "~0.8.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
