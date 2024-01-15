@@ -5,13 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { serverIp, serverPort } from '../../network';
 import Collapsible from 'react-native-collapsible';
-import Dialog from "react-native-dialog";
 
 const UserProfileScreen = ({ route }) => {
     const { userId } = route.params;
     const navigation = useNavigation();
     const [detectedImages, setDetectedImages] = useState([]);
-    const [dialogVisible, setDialogVisible] = useState(false);
     const [userData, setUserData] = useState({});
 
     const fetchDetectedImages = async () => {
@@ -40,13 +38,23 @@ const UserProfileScreen = ({ route }) => {
 
     }, [userId]);
 
+    const clearHistoryPress = async () => {
+        Alert.alert(
+            undefined,  // no title
+            "Are you sure you want to delete all images?",
+            [
+                { text: 'Cancel', onPress: () => null, style: 'cancel', },
+                { text: 'Delete', onPress: () => deleteAllImages() },
+            ]
+
+        );
+    };
+
     const deleteAllImages = async () => {
         try {
             await axios.delete(`http://${serverIp}:${serverPort}/deleteAllImages`, { data: { userId: userId }, });
             await fetchDetectedImages();
-            setDialogVisible(false);
         } catch (error) {
-            setDialogVisible(false);
             Alert.alert('Network error', "Unable to connect to the server.");
         }
     };
@@ -64,7 +72,6 @@ const UserProfileScreen = ({ route }) => {
             ...detectionInfo,
         });
     };
-
 
     const renderDetectedImage = ({ item }) => {
         const formattedClassName = item.className.replace(/, /g, ',\n');
@@ -146,7 +153,8 @@ const UserProfileScreen = ({ route }) => {
                                     renderItem={renderDetectedImage}
                                 />
                             </View>
-                            <TouchableOpacity onPress={setDialogVisible} style={{ flex: 0.1, margin: 10 }}>
+                            <TouchableOpacity /* Clear history button */
+                                onPress={clearHistoryPress} style={{ flex: 0.1, margin: 10 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 22, marginRight: 5 }}>Clear history</Text>
                                     <Icon name="delete" size={20} color="black" />
@@ -159,11 +167,6 @@ const UserProfileScreen = ({ route }) => {
                 </Collapsible>
 
             </View>
-            <Dialog.Container visible={dialogVisible}>
-                <Dialog.Title>Are you sure you want to delete all images?</Dialog.Title>
-                <Dialog.Button label="Cancel" onPress={() => { setDialogVisible(false) }} />
-                <Dialog.Button label="Delete" onPress={deleteAllImages} />
-            </Dialog.Container>
         </View >
     );
 };
