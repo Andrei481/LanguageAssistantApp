@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, FlatList, Image, TouchableOpacity, StatusBar, ScrollView, Alert, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -7,7 +7,7 @@ import { serverIp, serverPort } from '../../network';
 import Collapsible from 'react-native-collapsible';
 
 const UserProfileScreen = ({ route }) => {
-    const { userId, userLevel } = route.params;
+    const { userId } = route.params;
     const navigation = useNavigation();
     const [detectedImages, setDetectedImages] = useState([]);
     const [userData, setUserData] = useState({});
@@ -46,7 +46,6 @@ const UserProfileScreen = ({ route }) => {
                 { text: 'Cancel', onPress: () => null, style: 'cancel', },
                 { text: 'Delete', onPress: () => deleteAllImages() },
             ]
-
         );
     };
 
@@ -121,22 +120,28 @@ const UserProfileScreen = ({ route }) => {
                     onPress={toggleAccountInfo} >
                     <Text style={[styles.header]}>Account information {isAccountInfoCollapsed ? '▼' : '▲'}</Text>
                 </TouchableOpacity>
+
                 <Collapsible    /* Account information content */
                     style={{ padding: 10 }} collapsed={isAccountInfoCollapsed}>
-                    <View style={{ flexDirection: 'row' }}>
-                        <View style={{ flex: 0.3 }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Name: </Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Username: </Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Email: </Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Level: </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                        <View style={{ flex: 0.3, backgroundColor: 'red', aspectRatio: 1, borderRadius: 100, marginRight: 10 }}>
+
                         </View>
                         <View style={{ flex: 0.7 }}>
-                            <Text style={{ fontSize: 17 }}>{userData.name || " "}</Text>
+                            <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{userData.name || " "}</Text>
                             <Text style={{ fontSize: 17 }}>{userData.username || " "}</Text>
                             <Text style={{ fontSize: 17 }}>{userData.email || " "}</Text>
-                            <Text style={{ fontSize: 17 }}>{userLevel || " "}</Text>
                         </View>
                     </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <Text style={{ fontSize: 17, fontWeight: 'bold' }}>LEVEL {userData.level || "1"}</Text>
+                        <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'darkgrey' }}>POINTS: {userData.progressPoints || " 0"} / {userData.level * 100 || "100"}</Text>
+                    </View>
+
+                    <View style={{ height: 20, backgroundColor: 'lightgrey', borderRadius: 10 }}>
+                        <View style={{ width: `${userData.progressPoints / userData.level}%`, height: '100%', backgroundColor: 'green', borderRadius: 100 }} />
+                    </View>
+
                 </Collapsible>
 
 
