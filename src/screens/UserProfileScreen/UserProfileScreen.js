@@ -2,15 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import axios from 'axios';
 import { serverIp, serverPort } from '../../network';
 import Collapsible from 'react-native-collapsible';
+import profileIcon from "../../../assets/profile-icon.png";
 
 const UserProfileScreen = ({ route }) => {
     const { userId } = route.params;
     const navigation = useNavigation();
     const [detectedImages, setDetectedImages] = useState([]);
     const [userData, setUserData] = useState({});
+    const [isPickerOpen, setIsPickerOpen] = useState(false);
 
     const fetchDetectedImages = async () => {
         try {
@@ -48,6 +52,44 @@ const UserProfileScreen = ({ route }) => {
             ]
         );
     };
+
+    const pickProfilePicture = async () => {
+        if (isPickerOpen) return;   // Prevent multiple launches
+
+        setIsPickerOpen(true);
+
+        let pickerResult = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1
+        });
+
+        if (!pickerResult.canceled) {
+
+            /* Compress image */
+            const compressValue = 0.6;
+            const widthValue = pickerResult.assets[0].width > 600 ? 600 : pickerResult.assets[0].width;
+            const manipulatedImage = await manipulateAsync(
+                pickerResult.assets[0].uri, [{ resize: { width: widthValue } }], { compress: compressValue, format: SaveFormat.JPEG, base64: true }
+            );
+            setIsPickerOpen(false);
+            return manipulatedImage.base64;
+        }
+
+        setIsPickerOpen(false);
+        return null;
+    };
+
+    const uploadProfilePicture = async () => {
+        try {
+            const imgB64 = await pickProfilePicture();
+            if (!imgB64) return;
+            await axios.post(`http://${serverIp}:${serverPort}/profilePicture/`, { userId: userId, profilePicture: imgB64 });
+            await fetchUserData();
+        } catch (error) {
+            Alert.alert('Network error', "Unable to connect to the server.");
+        }
+    }
 
     const deleteAllImages = async () => {
         try {
@@ -102,7 +144,6 @@ const UserProfileScreen = ({ route }) => {
         setDetectionHistoryCollapsed(!isDetectionHistoryCollapsed);
     };
 
-
     return (
         <View /* Page */
             style={{ flex: 1 }}>
@@ -124,9 +165,15 @@ const UserProfileScreen = ({ route }) => {
                 <Collapsible    /* Account information content */
                     style={{ padding: 10 }} collapsed={isAccountInfoCollapsed}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                        <View style={{ flex: 0.3, backgroundColor: 'red', aspectRatio: 1, borderRadius: 100, marginRight: 10 }}>
-
-                        </View>
+                        <TouchableOpacity /* *Profile picture* */
+                            style={{ flex: 0.3, aspectRatio: 1, borderRadius: 100, marginRight: 20, alignItems: 'center', justifyContent: 'center' }}
+                            onPress={() => uploadProfilePicture()}>
+                            {userData.profilePicture ? (
+                                <Image source={{ uri: `data:image/jpeg;base64,${userData.profilePicture}` }} style={{ width: '99%', height: '99%', borderRadius: 100 }} />
+                            ) : (
+                                <Image source={profileIcon} style={{ width: '99%', height: '99%' }} />
+                            )}
+                        </TouchableOpacity>
                         <View style={{ flex: 0.7 }}>
                             <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{userData.name || " "}</Text>
                             <Text style={{ fontSize: 17 }}>{userData.username || " "}</Text>
