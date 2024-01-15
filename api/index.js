@@ -245,6 +245,32 @@ app.route("/detection")
         }
     });
 
+app.route("/profilePicture")
+    .post(async (req, res) => {
+        try {
+            const { userId, profilePicture } = req.body;
+
+            if (!userId || !profilePicture) {
+                return res.status(400).json({ message: "Invalid request data" });
+            }
+
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            const imageBuffer = Buffer.from(profilePicture, 'base64');
+
+            user.profilePicture = imageBuffer;
+            await user.save();
+
+            res.status(200).json({ message: "Profile picture saved successfully" });
+        } catch (error) {
+            console.error("Error saving profile picture:", error);
+            res.status(500).json({ message: "Internal server error" });
+        }
+    })
+
 app.route("/deleteAllImages")
     .delete(async (req, res) => {
         try {
@@ -284,7 +310,8 @@ app.get('/user/:userId', async (req, res) => {
             username: user.username,
             email: user.email,
             level: user.level,
-            progressPoints: user.progressPoints
+            progressPoints: user.progressPoints,
+            profilePicture: user.profilePicture ? user.profilePicture.toString('base64') : undefined
         };
 
         res.status(200).json(userData);
