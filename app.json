@@ -20,7 +20,7 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splashscreen.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#F2F2F2"
     },
     "assetBundlePatterns": [
