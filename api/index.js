@@ -282,7 +282,9 @@ app.get('/user/:userId', async (req, res) => {
         const userData = {
             name: user.name,
             username: user.username,
-            email: user.email
+            email: user.email,
+            level: user.level,
+            progressPoints: user.progressPoints
         };
 
         res.status(200).json(userData);
@@ -302,11 +304,14 @@ app.route('/progressPoints')
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            if (user.progressPoints === 0) {
-                user.progressPoints += 100;
-            } else {
-                user.progressPoints += progressIncrement;
+            console.log("incremented points");
+            user.progressPoints += progressIncrement;
+            if (user.progressPoints >= user.level * 100) {
+                user.progressPoints = 0;
+                user.level += 1;
             }
+            console.log("new points:", user.progressPoints);
+            console.log("new level:", user.level);
 
             await user.save();
 

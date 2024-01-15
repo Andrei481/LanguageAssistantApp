@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  name: {type: String, required: true},
+  name: { type: String, required: true },
   username: {
     type: String,
     unique: true,
@@ -16,10 +16,11 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   verificationToken: String,
-  progressPoints: {type: Number, required: true, default: 0}
+  progressPoints: { type: Number, required: true, default: 0 },
+  level: { type: Number, required: true, default: 1 }
 });
 
 
-const User = mongoose.model("User",userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
