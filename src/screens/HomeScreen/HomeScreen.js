@@ -24,10 +24,6 @@ const HomeScreen = ({ route }) => {
     const [isDetecting, setisDetecting] = useState(false);
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
-    const [userLevel, setUserLevel] = useState(0);
-    const [isProgressBarVisible, setIsProgressBarVisible] = useState(false);
-    const [progressPoints, setProgressPoints] = useState(0);
-    const [nextLevelPoints, setNextLevelPoints] = useState(100);
     const screenWidth = Dimensions.get('window').width;
 
     useEffect(() => {
@@ -125,7 +121,7 @@ const HomeScreen = ({ route }) => {
                 return;
             }
             setisDetecting(true);
-    
+
             // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImageLow, {
                 encoding: FileSystem.EncodingType.Base64,
@@ -133,90 +129,50 @@ const HomeScreen = ({ route }) => {
             const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
             const raw = new Uint8Array(imgBuffer)
             const imageTensor = decodeJpeg(raw);
-    
+
             // Classify the tensor and show the result
             const prediction = await model.classify(imageTensor);
             imageTensor.dispose(); // release memory
-    
+
             if (prediction && prediction.length > 0) {
                 setDetectionResult(`${prediction[0].className} (${prediction[0].probability.toFixed(3)})`);
-    
+
                 const detectionData = {
                     userId,
                     image: imgB64,
                     className: prediction[0].className,
                     probability: prediction[0].probability.toFixed(3),
                 };
-    
+
                 await axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
                     .catch(error => {
                         if (error.response && error.response.status !== 409) {
                             Alert.alert('Upload error', error.message || "Unable to connect to the server.");
                         }
                     });
-    
+
                 prediction.forEach(item => {
                     if (item.rawImageData) {
                         tf.dispose(item.rawImageData);
                     }
                 });
-    
+
                 await axios.post(`http://${serverIp}:${serverPort}/progressPoints`, { userId, progressIncrement: 10 })
-                .then(response => {
-                    const updatedProgressPoints = response.data.progressPoints || 0;
-                    setProgressPoints(updatedProgressPoints);
-                    setUserLevel(calculateUserLevel(progressPoints));
-                    const nextLevel = calculateUserLevel(updatedProgressPoints) + 1;
-                    setNextLevelPoints(nextLevel * 100);
-                })
                     .catch(error => {
                         if (error.response && error.response.status !== 409) {
                             Alert.alert('Update error', error.message || "Unable to connect to the server.");
                         }
                     });
-    
+
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
             setisDetecting(false);
-    
+
         } catch (err) {
             Alert.alert("Detection error", err.message || "Something went wrong.");
             setisDetecting(false);
         }
     };
-
-    const calculateUserLevel = (progressPoints) => {
-        return Math.floor(progressPoints / 100);
-    };
-
-    const handleLevelClick = () => {
-        setIsProgressBarVisible(!isProgressBarVisible);
-    };
-
-    useEffect(() => {
-        const fetchUserProgressPoints = async () => {
-            try {
-                const response = await axios.get(`http://${serverIp}:${serverPort}/progressPoints?userId=${userId}`);
-                const progressPoints = response.data.progressPoints || 0;
-    
-                setUserLevel(calculateUserLevel(progressPoints));
-                setProgressPoints(progressPoints);
-                const nextLevel = calculateUserLevel(progressPoints) + 1;
-                setNextLevelPoints(nextLevel * 100);
-
-            } catch (error) {
-                console.error('Error fetching progress points:', error);
-                if (error.response) {
-                    console.error('Response status:', error.response.status);
-                    console.error('Response data:', error.response.data);
-                }
-            }
-        };
-    
-        fetchUserProgressPoints();
-    }, [userId]);
-    
-    
 
     return (
 
@@ -226,25 +182,12 @@ const HomeScreen = ({ route }) => {
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
-                {/* <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text> */}
-                <TouchableOpacity onPress={handleLevelClick}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white', padding: 10 }}>Level {userLevel}</Text>
-                </TouchableOpacity>
+                <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text>
                 <TouchableOpacity /* Profile icon */
-                    onPress={() => { navigation.navigate('User Profile', { userId, userLevel }); }}>
+                    onPress={() => { navigation.navigate('User Profile', { userId }); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
-
-            {isProgressBarVisible && (
-                <View style={{ width: '100%', alignItems: 'center' }}>
-                    <Text>Progress</Text>
-                    <Text>{progressPoints}/{nextLevelPoints}</Text>
-                    <View style={{ width: 200, height: 20, backgroundColor: '#ccc', borderRadius: 10, marginTop: 10 }}>
-                        <View style={{ width: `${(progressPoints / nextLevelPoints) * 100}%`, height: '100%', backgroundColor: '#6499E9', borderRadius: 10 }} />
-                    </View>
-                </View>
-            )}
 
             <View /* Image box */
                 style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
