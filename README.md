@@ -11,4 +11,4 @@ Learn new languages with AI!
 
 &nbsp;
 
-<img src="assets/cover.jpg" alt="App demonstration image" width="50%"/>
+<img src="assets/cover.jpg" alt="App demonstration image" width="500"/>
