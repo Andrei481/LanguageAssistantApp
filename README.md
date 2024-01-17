@@ -9,6 +9,8 @@ Learn new languages with AI!
 
 ### [Slideshow](https://docs.google.com/presentation/d/1QBmnjBgvB85LjTHLeM4XnskQvkOjq6FVtV4fOmLFeIw/edit?usp=sharing)
 
-&nbsp;
+### [Get the app!](https://github.com/Andrei481/LanguageAssistantApp/releases/latest)
+
+<img src="assets/icon.png" alt="App icon" width="100">
 
 <img src="assets/cover.jpg" alt="App demonstration image" width="500"/>
