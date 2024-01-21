@@ -19,7 +19,7 @@ const UserProfileScreen = ({ route }) => {
     const fetchDetectedImages = async () => {
         try {
             const response = await axios.get(`http://${serverIp}:${serverPort}/detection?userId=${userId}`);
-            setDetectedImages(response.data.detectedImages);
+            setDetectedImages(response.data.detectedImages.reverse());
         } catch (error) {
             Alert.alert('Network error', "Unable to connect to the server.");
         }
@@ -119,17 +119,24 @@ const UserProfileScreen = ({ route }) => {
 
         return (
             <View style={{ flex: 1, flexDirection: 'row' }}>
-                <TouchableOpacity style={{ flex: 0.6 }} onPress={() => handleImagePress(item)}>
+
+                <TouchableOpacity /* Image box */
+                    style={{ flex: 0.6, aspectRatio: 1, margin: 10, marginRight: 3, alignItems: 'center', justifyContent: 'center' }}
+                    onPress={() => handleImagePress(item)}>
+
                     {item.image ? (
-                        <Image source={{ uri: `data:image/jpeg;base64,${item.image}` }} style={{ borderRadius: 13, width: 200, height: 200, margin: 10, }} />
+                        <Image source={{ uri: `data:image/jpeg;base64,${item.image}` }} style={{ borderRadius: 13, width: '100%', height: '100%' }} />
                     ) : (
                         <Text>No Image Available</Text>
                     )}
                 </TouchableOpacity>
-                <View style={{ flex: 0.4, justifyContent: 'center' }}>
+
+                <View /* Result box */
+                    style={{ flex: 0.4, margin: 10, justifyContent: 'center' }}>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>{formattedClassName}</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{`${(item.probability * 100).toFixed(2)}%`}</Text>
                 </View>
+
             </View>
         );
     };
@@ -182,11 +189,11 @@ const UserProfileScreen = ({ route }) => {
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
                         <Text style={{ fontSize: 17, fontWeight: 'bold' }}>LEVEL {userData.level || "1"}</Text>
-                        <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'darkgrey' }}>POINTS: {userData.progressPoints || " 0"} / {userData.level * 100 || "100"}</Text>
+                        <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'darkgrey' }}>POINTS: {userData.progressPoints || "0"} / {userData.level * 100 || "100"}</Text>
                     </View>
 
                     <View style={{ height: 20, backgroundColor: 'lightgrey', borderRadius: 10 }}>
-                        <View style={{ width: `${userData.progressPoints / userData.level}%`, height: '100%', backgroundColor: 'green', borderRadius: 100 }} />
+                        <View style={{ width: userData.level ? `${userData.progressPoints / userData.level}%` : 0, height: '100%', backgroundColor: 'green', borderRadius: 100 }} />
                     </View>
 
                 </Collapsible>
@@ -232,7 +239,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     header: {
-        fontSize: 32,
+        fontSize: 26,
         fontWeight: 'bold',
         color: 'darkblue',
 
