@@ -1,58 +1,56 @@
 {
-  "expo": {
-    "name": "Language Assistant",
-    "slug": "LanguageAssistant",
-    "version": "0.3.0",
-    "githubUrl": "https://github.com/Andrei481/LanguageAssistantApp",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "androidStatusBar": {
-      "barStyle": "dark-content",
-      "backgroundColor": "#F2F2F2"
-    },
-    "androidNavigationBar": {
-      "barStyle": "dark-content",
-      "backgroundColor": "#F2F2F2"
-    },
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splashscreen.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#F2F2F2"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
-        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
-      }
-    },
-    "plugins": [
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          }
+    "expo": {
+        "name": "Language Assistant",
+        "slug": "LanguageAssistant",
+        "version": "0.4.0",
+        "githubUrl": "https://github.com/Andrei481/LanguageAssistantApp",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "androidStatusBar": {
+            "barStyle": "dark-content",
+            "backgroundColor": "#F2F2F2"
+        },
+        "androidNavigationBar": {
+            "barStyle": "dark-content",
+            "backgroundColor": "#F2F2F2"
+        },
+        "userInterfaceStyle": "light",
+        "splash": {
+            "image": "./assets/splashscreen.png",
+            "resizeMode": "cover",
+            "backgroundColor": "#F2F2F2"
+        },
+        "assetBundlePatterns": ["**/*"],
+        "ios": {
+            "supportsTablet": true,
+            "infoPlist": {
+                "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
+                "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
+            }
+        },
+        "plugins": [
+            [
+                "expo-build-properties",
+                {
+                    "android": {
+                        "usesCleartextTraffic": true
+                    }
+                }
+            ]
+        ],
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#6499E9"
+            },
+            "permissions": [
+                "android.permission.CAMERA",
+                "android.permission.RECORD_AUDIO"
+            ],
+            "package": "com.a2.languageassistant"
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
         }
-      ]
-    ],
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#6499E9"
-      },
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ],
-      "package": "com.a2.languageassistant"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     }
-  }
 }
