@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { serverIp, serverPort } from '../../network';
-import { View, Text, Image, StyleSheet, useWindowDimensions, Alert, StatusBar } from 'react-native';
+import { View, Text, Image, StyleSheet, useWindowDimensions, Alert, StatusBar, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Logo from '../../../assets/Logo_1.png'
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
@@ -46,52 +46,60 @@ const LoginScreen = () => {
             });
     };
 
+    const useOffline = () => {
+        navigation.navigate("Home", { userId: 0 });
+    }
+
     return (
-        <View style={{ height: height, alignItems: 'center', justifyContent: 'center' }}>
-            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView>
+                <View style={{ height: height, alignItems: 'center', justifyContent: 'center' }}>
+                    <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
 
-            <View /* Image box */
-                style={{ width: '70%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Image source={Logo} style={{ borderRadius: 30, width: '80%', height: '80%' }} />
-            </View>
-            <View
-                style={{ paddingBottom: 50, width: '80%', alignItems: 'center', justifyContent: 'center' }}>
-                <CustomInput
-                    placeholder="Enter Username or Email"
-                    value={username}
-                    setValue={setUsername}
-                    keyboardType='email-address'
-                />
-                <CustomInput
-                    placeholder="Enter Password"
-                    value={password}
-                    setValue={setPassword}
-                    secureTextEntry={true}
-                />
-                <View style={{ width: 200, marginTop: 10 }}>
-                    <CustomButton
-                        text='Login' onPress={handleLogin}
-                        type='PRIMARY'
-                        disabled={!username || !password}
-                    />
-                </View>
-                <View style={styles.container_resetPassword}>
-                    <CustomButton
-                        text='Forgot your Password?'
-                        onPress={onForgotPasswordPressed}
-                        type='TERTIARY'
-                    />
-                </View>
+                    <View /* Image box */
+                        style={{ width: '70%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <Image source={Logo} style={{ borderRadius: 30, width: '80%', height: '80%' }} />
+                    </View>
+                    <View
+                        style={{ paddingBottom: 50, width: '80%', alignItems: 'center', justifyContent: 'center' }}>
+                        <CustomInput
+                            placeholder="Enter Username or Email"
+                            value={username}
+                            setValue={setUsername}
+                            keyboardType='email-address'
+                        />
+                        <CustomInput
+                            placeholder="Enter Password"
+                            value={password}
+                            setValue={setPassword}
+                            secureTextEntry={true}
+                        />
+                        <View style={{ width: 200, marginTop: 10 }}>
+                            <CustomButton
+                                text='Login' onPress={handleLogin}
+                                type='PRIMARY'
+                                disabled={!username || !password}
+                            />
+                        </View>
+                        <View style={styles.container_resetPassword}>
+                            <CustomButton
+                                text='Forgot your Password?'
+                                onPress={onForgotPasswordPressed}
+                                type='TERTIARY'
+                            />
+                        </View>
 
-            </View>
-            <View style={[styles.container_signup,]}>
-                <Text>Don't have an account?</Text>
-                <CustomButton
-                    text='Sign Up!' onPress={onSignUpPressed}
-                    type='TERTIARY'
-                />
-            </View>
-        </View >
+                    </View>
+                    <View style={[styles.container_signup,]}>
+                        <Text>Don't have an account?</Text>
+                        <CustomButton
+                            text='Sign Up!' onPress={onSignUpPressed}
+                            type='TERTIARY'
+                        />
+                    </View>
+                </View >
+            </ScrollView>
+        </TouchableWithoutFeedback>
     );
 };
 
