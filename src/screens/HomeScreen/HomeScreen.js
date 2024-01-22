@@ -144,12 +144,14 @@ const HomeScreen = ({ route }) => {
                     probability: prediction[0].probability.toFixed(3),
                 };
 
-                await axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
-                    .catch(error => {
-                        if (error.response && error.response.status !== 409) {
-                            Alert.alert('Upload error', error.message || "Unable to connect to the server.");
-                        }
-                    });
+                if (userId !== 0) {
+                    await axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
+                        .catch(error => {
+                            if (error.response && error.response.status !== 409) {
+                                Alert.alert('Upload error', error.message || "Unable to connect to the server.");
+                            }
+                        });
+                }
 
                 prediction.forEach(item => {
                     if (item.rawImageData) {
@@ -157,13 +159,14 @@ const HomeScreen = ({ route }) => {
                     }
                 });
 
-                await axios.post(`http://${serverIp}:${serverPort}/progressPoints`, { userId, progressIncrement: 10 })
-                    .catch(error => {
-                        if (error.response && error.response.status !== 409) {
-                            Alert.alert('Update error', error.message || "Unable to connect to the server.");
-                        }
-                    });
-
+                if (userId !== 0) {
+                    await axios.post(`http://${serverIp}:${serverPort}/progressPoints`, { userId, progressIncrement: 10 })
+                        .catch(error => {
+                            if (error.response && error.response.status !== 409) {
+                                Alert.alert('Update error', error.message || "Unable to connect to the server.");
+                            }
+                        });
+                }
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
             setisDetecting(false);
@@ -183,7 +186,10 @@ const HomeScreen = ({ route }) => {
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text>
+
                 <TouchableOpacity /* Profile icon */
+                    style={{ opacity: userId === 0 ? 0 : 1 }}
+                    disabled={userId === 0}
                     onPress={() => { navigation.navigate('User Profile', { userId }); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>

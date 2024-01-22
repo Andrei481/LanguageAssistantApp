@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     },
 
     container_TERTIARY: {
+        padding: 5
     },
 
     container_DISABLED: {

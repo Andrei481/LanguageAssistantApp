@@ -92,10 +92,17 @@ const LoginScreen = () => {
                     </View>
                     <View style={[styles.container_signup,]}>
                         <Text>Don't have an account?</Text>
-                        <CustomButton
-                            text='Sign Up!' onPress={onSignUpPressed}
-                            type='TERTIARY'
-                        />
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }} >
+                            <CustomButton
+                                text='Sign Up!' onPress={onSignUpPressed}
+                                type='TERTIARY'
+                            />
+                            <Text> or </Text>
+                            <CustomButton
+                                text='Use offline!' onPress={useOffline}
+                                type='TERTIARY'
+                            />
+                        </View>
                     </View>
                 </View >
             </ScrollView>
