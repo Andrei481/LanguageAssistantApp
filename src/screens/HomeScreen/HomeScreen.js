@@ -12,6 +12,8 @@ import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
 import axios from "axios";
 import { serverIp, serverPort } from '../../network';
+import appIcon from '../../../assets/icon.png';
+import appInfo from '../../../app.json';
 
 const HomeScreen = ({ route }) => {
     const { userId } = route.params;
@@ -24,22 +26,75 @@ const HomeScreen = ({ route }) => {
     const [isDetecting, setisDetecting] = useState(false);
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const [isAboutVisible, setIsAboutVisible] = useState(false);
+    const [mobilenetAlpha, setMobilenetAlpha] = useState(1);
+    const [changedAlpha, setChangedAlpha] = useState(false);
     const screenWidth = Dimensions.get('window').width;
 
-    useEffect(() => {
-        const loadModel = async () => {
-            try {
-                await tf.ready();
-                const mobilenetModel = await mobilenet.load({ version: 1, alpha: 1 });
-                setisModelLoaded(true);
-                setModel(mobilenetModel);
-            } catch (error) {
-                Alert.alert("Model error", error.message || "Something went wrong.");
-            }
-        };
+    const loadMobilenetAlpha = async () => {
+        try {
+            const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
+            const fileInfo = await FileSystem.getInfoAsync(fileUri);
 
+            if (fileInfo.exists) {
+                const content = await FileSystem.readAsStringAsync(fileUri);
+                setMobilenetAlpha(parseFloat(content));
+            } else {
+                setMobilenetAlpha(1);
+                saveMobilenetAlpha();
+            }
+        } catch (error) {
+            Alert.alert('Error loading mobilenetAlpha from FileSystem:', error);
+        }
+    };
+
+    const saveMobilenetAlpha = async () => {
+        try {
+            const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
+            await FileSystem.writeAsStringAsync(fileUri, mobilenetAlpha.toString());
+        } catch (error) {
+            Alert.alert('Error saving mobilenetAlpha to FileSystem:', error);
+        }
+    };
+
+    const loadModel = async () => {
+        try {
+            setisModelLoaded(false);
+            await tf.ready();
+            const mobilenetModel = await mobilenet.load({ version: 1, alpha: mobilenetAlpha });
+            setisModelLoaded(true);
+            setModel(mobilenetModel);
+        } catch (error) {
+            Alert.alert("Model error", error.message || "Something went wrong.");
+        }
+    };
+
+    useEffect(() => {
+        loadMobilenetAlpha();   //execute this on app launch instead of every time the screen is rendered
         loadModel();
     }, []);
+
+    const openAbout = () => {
+        setIsAboutVisible(true);
+    };
+
+    const closeAbout = () => {
+        setIsAboutVisible(false);
+        if (changedAlpha) {
+            loadModel();
+            saveMobilenetAlpha();
+            setChangedAlpha(false);
+        }
+    }
+
+    const toggleAlpha = () => {
+        if (mobilenetAlpha === 1) {
+            setMobilenetAlpha(0.75);
+        } else {
+            setMobilenetAlpha(1);
+        }
+        setChangedAlpha(!changedAlpha);
+    }
 
     const pickImage = async () => {
         if (isCameraOpen || isPickerOpen) return;   // Prevent multiple launches
@@ -185,7 +240,11 @@ const HomeScreen = ({ route }) => {
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
-                <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text>
+
+                <TouchableOpacity /* Language Assistant */
+                    onPress={() => openAbout()}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity /* Profile icon */
                     style={{ opacity: userId === 0 ? 0 : 1 }}
@@ -216,7 +275,7 @@ const HomeScreen = ({ route }) => {
                     />
                 </View>
 
-                <Text style={{ opacity: isModelLoaded ? 0 : 1 }}>Loading TFJS Model...</Text>
+                <Text style={{ opacity: isModelLoaded ? 0 : 1 }}>Loading MobileNet (alpha {mobilenetAlpha.toFixed(2)})...</Text>
 
                 <View /* Choose image bar */
                     style={{ position: 'absolute', bottom: 40, flexDirection: 'row' }}>
@@ -256,8 +315,61 @@ const HomeScreen = ({ route }) => {
                 </View>
 
             </View>
+            <Modal  /* About overlay */
+                transparent={true}
+                animationType="fade"
+                visible={isAboutVisible}
+                statusBarTranslucent={true}
+            >
+                <View /* Shadow */
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+
+                    <View /* About card */
+                        style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+
+                        <Text /* Title */
+                            style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue', marginBottom: 20 }}>About
+                        </Text>
+                        <View /* Icon */
+                            style={{ width: '40%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }} >
+                            <Image source={appIcon} style={{ borderRadius: 90, width: '100%', height: '100%' }} />
+                        </View>
+                        <Text /* Description */
+                            style={{ textAlign: 'center', marginBottom: 20 }}>
+                            Language Assistant Description
+                        </Text>
+                        <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+                            <View style={{ flex: 0.5, paddingRight: 5 }}>
+                                <Text style={{ textAlign: 'right', marginBottom: 5 }}>MobileNet alpha:</Text>
+                                <Text style={{ textAlign: 'right', marginBottom: 5 }}>Version:</Text>
+                                <Text style={{ textAlign: 'right' }}>Developers:</Text>
+                            </View>
+                            <View style={{ flex: 0.5, paddingRight: 5 }}>
+                                <TouchableOpacity onPress={() => { toggleAlpha() }}>
+                                    <Text style={{ textAlign: 'left', marginBottom: 5, fontWeight: 'bold', color: 'darkblue' }}>{mobilenetAlpha.toFixed(2)}</Text>
+                                </TouchableOpacity>
+                                <Text style={{ textAlign: 'left', marginBottom: 5 }}>{appInfo.expo.version}</Text>
+                                <Text style={{ textAlign: 'left' }}>Joldea Andrei</Text>
+                                <Text style={{ textAlign: 'left' }}>Lazarov Andrei</Text>
+                            </View>
+                        </View>
+                        <View /* Close button */
+                            style={{ width: '100%', marginTop: 10 }}>
+                            <CustomButton
+                                text="Close"
+                                onPress={() => closeAbout()}
+                                type="PRIMARY"
+                            />
+                        </View>
+
+                    </View>
+
+                </View>
+
+            </Modal>
 
         </View>
+
     );
 };
 
