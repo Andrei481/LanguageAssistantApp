@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
@@ -274,7 +274,7 @@ const HomeScreen = ({ route }) => {
             </View>
 
             <View /* Image box */
-                style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
+                style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, backgroundColor: 'white', borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
                 {pickedImageHigh ?
                     <Image source={{ uri: pickedImageHigh }} style={{ width: '100%', height: '100%' }} /> :
                     <Text style={{ fontWeight: 'bold', fontSize: (screenWidth) * 0.08, color: 'darkblue', padding: 10 }}>Choose an image</Text>
@@ -349,29 +349,45 @@ const HomeScreen = ({ route }) => {
                         <Text /* Title */
                             style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue', marginBottom: 20 }}>About
                         </Text>
+
                         <View /* Icon */
                             style={{ width: '40%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }} >
-                            <Image source={appIcon} style={{ borderRadius: 90, width: '100%', height: '100%' }} />
+                            <Image source={appIcon} style={{ borderRadius: 80, width: '100%', height: '100%' }} />
                         </View>
-                        <Text /* Description */
-                            style={{ textAlign: 'center', marginBottom: 20 }}>
-                            Language Assistant Description
+
+                        <Text /* Description title */
+                            style={{ textAlign: 'center' }}>
+                            Welcome to Language Assistant!
                         </Text>
-                        <View style={{ flexDirection: 'row', marginBottom: 20 }}>
-                            <View style={{ flex: 0.5, paddingRight: 5 }}>
+                        <Text /* Description body */
+                            style={{ textAlign: 'center', marginBottom: 20 }}>
+                            Your AI-powered language learning companion
+                        </Text>
+
+                        <View /* Info */
+                            style={{ flexDirection: 'row', marginBottom: 20 }}>
+                            <View /* Left side - keys */
+                                style={{ flex: 0.5, paddingRight: 5 }}>
                                 <Text style={{ textAlign: 'right', marginBottom: 5 }}>MobileNet alpha:</Text>
                                 <Text style={{ textAlign: 'right', marginBottom: 5 }}>Version:</Text>
+                                <Text style={{ textAlign: 'right', marginBottom: 5 }}>Repository:</Text>
                                 <Text style={{ textAlign: 'right' }}>Developers:</Text>
                             </View>
-                            <View style={{ flex: 0.5, paddingRight: 5 }}>
+                            <View /* Right side - values */
+                                style={{ flex: 0.5, paddingRight: 5 }}>
                                 <TouchableOpacity onPress={() => { toggleAlpha() }}>
                                     <Text style={{ textAlign: 'left', marginBottom: 5, fontWeight: 'bold', color: 'darkblue' }}>{mobilenetAlpha.toFixed(2)}</Text>
                                 </TouchableOpacity>
                                 <Text style={{ textAlign: 'left', marginBottom: 5 }}>{appInfo.expo.version}</Text>
+                                <TouchableOpacity
+                                    onPress={() => Linking.openURL('https://github.com/Andrei481/LanguageAssistantApp')}>
+                                    <Text style={{ textAlign: 'left', marginBottom: 5, fontWeight: 'bold', color: 'darkblue' }}>GitHub</Text>
+                                </TouchableOpacity>
                                 <Text style={{ textAlign: 'left' }}>Joldea Andrei</Text>
                                 <Text style={{ textAlign: 'left' }}>Lazarov Andrei</Text>
                             </View>
                         </View>
+
                         <View /* Close button */
                             style={{ width: '100%', marginTop: 10 }}>
                             <CustomButton
