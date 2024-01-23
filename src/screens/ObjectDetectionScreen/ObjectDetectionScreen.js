@@ -69,7 +69,10 @@ const ObjectDetectionScreen = ({ route }) => {
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text>
+
                 <TouchableOpacity /* Profile icon */
+                    style={{ opacity: userId === 0 ? 0 : 1 }}
+                    disabled={userId === 0}
                     onPress={() => { navigation.navigate('User Profile', { userId }); }}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
