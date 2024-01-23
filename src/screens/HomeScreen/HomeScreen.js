@@ -10,6 +10,7 @@ import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
+import * as Device from 'expo-device';
 import axios from "axios";
 import { serverIp, serverPort } from '../../network';
 import appIcon from '../../../assets/icon.png';
@@ -32,6 +33,7 @@ const HomeScreen = ({ route }) => {
     const screenWidth = Dimensions.get('window').width;
 
     const loadMobilenetAlpha = async () => {
+        /* Load alpha value from local storage */
         try {
             const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
             const fileInfo = await FileSystem.getInfoAsync(fileUri);
@@ -39,25 +41,36 @@ const HomeScreen = ({ route }) => {
             if (fileInfo.exists) {
                 const content = await FileSystem.readAsStringAsync(fileUri);
                 setMobilenetAlpha(parseFloat(content));
-            } else {
-                setMobilenetAlpha(1);
-                saveMobilenetAlpha();
+                return;
             }
+
+            if (Device.brand === 'google') {
+                setMobilenetAlpha(0.75);
+                saveMobilenetAlpha();
+                return;
+            }
+
+            /* Default value */
+            setMobilenetAlpha(1);
+            saveMobilenetAlpha();
+
         } catch (error) {
-            Alert.alert('Error loading mobilenetAlpha from FileSystem:', error);
+            Alert.alert('Error loading MobileNet alpha', error);
         }
     };
 
     const saveMobilenetAlpha = async () => {
+        /* Store alpha value in local storage */
         try {
             const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
             await FileSystem.writeAsStringAsync(fileUri, mobilenetAlpha.toString());
         } catch (error) {
-            Alert.alert('Error saving mobilenetAlpha to FileSystem:', error);
+            Alert.alert('Error storing MobileNet alpha', error);
         }
     };
 
-    const loadModel = async () => {
+    const loadMobileNet = async () => {
+        /* Load MobileNet model with selected alpha */
         try {
             setisModelLoaded(false);
             await tf.ready();
@@ -70,7 +83,13 @@ const HomeScreen = ({ route }) => {
     };
 
     useEffect(() => {
-        loadMobilenetAlpha();   //execute this on app launch instead of every time the screen is rendered
+        /* Run every time the screen is rendered */
+
+        const loadModel = async () => {
+            await loadMobilenetAlpha();
+            await loadMobileNet();
+        };
+
         loadModel();
     }, []);
 
@@ -81,7 +100,7 @@ const HomeScreen = ({ route }) => {
     const closeAbout = () => {
         setIsAboutVisible(false);
         if (changedAlpha) {
-            loadModel();
+            loadMobileNet();
             saveMobilenetAlpha();
             setChangedAlpha(false);
         }
