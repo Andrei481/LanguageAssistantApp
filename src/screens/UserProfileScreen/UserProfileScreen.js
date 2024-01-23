@@ -212,6 +212,7 @@ const UserProfileScreen = ({ route }) => {
                                     data={detectedImages}
                                     keyExtractor={(item) => item._id}
                                     renderItem={renderDetectedImage}
+                                    onEndReached={() => setAccountInfoCollapsed(true)}
                                 />
                             </View>
                             <TouchableOpacity /* Clear history button */
