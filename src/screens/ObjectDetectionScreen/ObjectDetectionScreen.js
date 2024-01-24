@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StatusBar, Dimensions, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { languages } from '../../languages';
@@ -7,12 +7,14 @@ import translate from 'translate-google-api';
 import useTranslation from '../../useTranslation';
 import * as Speech from 'expo-speech';
 import { useNavigation } from '@react-navigation/native';
+import CustomButton from '../../components/CustomButton';
 
 const ObjectDetectionScreen = ({ route }) => {
     const { userId, pickedImage, prediction } = route.params;
     const [selectedLanguage, setSelectedLanguage] = useState(null);
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(null);
+    const [isProfileInfoVisible, setIsProfileInfoVisible] = useState(false);
     const navigation = useNavigation();
     const screenWidth = Dimensions.get('window').width;
 
@@ -60,6 +62,22 @@ const ObjectDetectionScreen = ({ route }) => {
         }
     }, [selectedLanguage, objectInfo.className]);
 
+    const openProfileInfo = () => {
+        setIsProfileInfoVisible(true);
+    };
+
+    const closeProfileInfo = () => {
+        setIsProfileInfoVisible(false);
+    };
+
+    const handleProfilePress = () => {
+        if (userId == 0) {
+            openProfileInfo();
+        } else {
+            navigation.navigate('User Profile', { userId });
+        }
+    };
+
     return (
 
         <View /* Page */
@@ -68,12 +86,10 @@ const ObjectDetectionScreen = ({ route }) => {
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
                 <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
-                <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Language Assistant</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Results</Text>
 
                 <TouchableOpacity /* Profile icon */
-                    style={{ opacity: userId === 0 ? 0 : 1 }}
-                    disabled={userId === 0}
-                    onPress={() => { navigation.navigate('User Profile', { userId }); }}>
+                    onPress={handleProfilePress}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
@@ -128,11 +144,9 @@ const ObjectDetectionScreen = ({ route }) => {
 
                 <View /* Translate results row */
                     style={{ flex: 0.33, flexDirection: 'row', opacity: translatedClassName == null ? 0 : 1 }}>
-
                     <View style={{ flex: 7.5, justifyContent: 'center', borderWidth: 1, backgroundColor: 'white', borderRadius: 13, alignItems: 'center', }}>
                         <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue' }}>{`${translatedClassName}`}</Text>
                     </View>
-
                     <View style={{ flex: 2.5, justifyContent: 'center', alignItems: 'center' }}>
                         <TouchableOpacity /* Listen button */
                             onPress={() => speakInLanguage(translatedClassName, selectedLanguage)}>
@@ -142,6 +156,42 @@ const ObjectDetectionScreen = ({ route }) => {
                 </View>
 
             </View>
+
+            <Modal /* Profile info overlay */
+                transparent={true}
+                statusBarTranslucent={true}
+                animationType="fade"
+                visible={isProfileInfoVisible}
+                onRequestClose={closeProfileInfo}
+            >
+                <View /* Shadow */
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+
+                    <View /* Go online card */
+                        style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+
+                        <Text /* Title */
+                            style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue', marginBottom: 20 }}>Go online
+                        </Text>
+
+                        <Text /* Description body */
+                            style={{ textAlign: 'center', marginBottom: 20 }}>
+                            Create an account to access the profile page. Here you will find your progress and past detections.
+                        </Text>
+
+                        <View /* Close button */
+                            style={{ width: '100%', marginTop: 10 }}>
+                            <CustomButton
+                                text="Close"
+                                onPress={closeProfileInfo}
+                                type="PRIMARY"
+                            />
+                        </View>
+
+                    </View>
+
+                </View>
+            </Modal>
 
         </View >
     );
