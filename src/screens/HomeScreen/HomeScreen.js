@@ -28,6 +28,7 @@ const HomeScreen = ({ route }) => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [isAboutVisible, setIsAboutVisible] = useState(false);
+    const [isProfileInfoVisible, setIsProfileInfoVisible] = useState(false);
     const [mobilenetAlpha, setMobilenetAlpha] = useState(1);
     const [changedAlpha, setChangedAlpha] = useState(false);
     const screenWidth = Dimensions.get('window').width;
@@ -105,6 +106,14 @@ const HomeScreen = ({ route }) => {
             setChangedAlpha(false);
         }
     }
+
+    const openProfileInfo = () => {
+        setIsProfileInfoVisible(true);
+    };
+
+    const closeProfileInfo = () => {
+        setIsProfileInfoVisible(false);
+    };
 
     const toggleAlpha = () => {
         if (mobilenetAlpha === 1) {
@@ -251,6 +260,14 @@ const HomeScreen = ({ route }) => {
         }
     };
 
+    const handleProfilePress = () => {
+        if (userId == 0) {
+            openProfileInfo();
+        } else {
+            navigation.navigate('User Profile', { userId });
+        }
+    };
+
     return (
 
         <View /* Page */
@@ -266,9 +283,7 @@ const HomeScreen = ({ route }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity /* Profile icon */
-                    style={{ opacity: userId === 0 ? 0 : 1 }}
-                    disabled={userId === 0}
-                    onPress={() => { navigation.navigate('User Profile', { userId }); }}>
+                    onPress={handleProfilePress}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
@@ -336,9 +351,10 @@ const HomeScreen = ({ route }) => {
             </View>
             <Modal  /* About overlay */
                 transparent={true}
+                statusBarTranslucent={true}
                 animationType="fade"
                 visible={isAboutVisible}
-                statusBarTranslucent={true}
+                onRequestClose={closeAbout}
             >
                 <View /* Shadow */
                     style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
@@ -401,6 +417,42 @@ const HomeScreen = ({ route }) => {
 
                 </View>
 
+            </Modal>
+
+            <Modal /* Profile info overlay */
+                transparent={true}
+                statusBarTranslucent={true}
+                animationType="fade"
+                visible={isProfileInfoVisible}
+                onRequestClose={closeProfileInfo}
+            >
+                <View /* Shadow */
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+
+                    <View /* Go online card */
+                        style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+
+                        <Text /* Title */
+                            style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue', marginBottom: 20 }}>Go online
+                        </Text>
+
+                        <Text /* Description body */
+                            style={{ textAlign: 'center', marginBottom: 20 }}>
+                            Create an account to access the profile page. Here you will find your progress and past detections.
+                        </Text>
+
+                        <View /* Close button */
+                            style={{ width: '100%', marginTop: 10 }}>
+                            <CustomButton
+                                text="Close"
+                                onPress={closeProfileInfo}
+                                type="PRIMARY"
+                            />
+                        </View>
+
+                    </View>
+
+                </View>
             </Modal>
 
         </View>
