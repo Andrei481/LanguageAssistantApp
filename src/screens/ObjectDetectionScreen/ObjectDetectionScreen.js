@@ -25,6 +25,11 @@ const ObjectDetectionScreen = ({ route }) => {
         }))
     );
 
+    useEffect(() => {
+        /* Run every time the screen is rendered */
+        StatusBar.setBarStyle('light-content');
+    }, []);
+
     const getObjectInfo = () => {
         if (prediction && prediction.length > 0) {
             const firstPrediction = prediction[0];
@@ -85,7 +90,6 @@ const ObjectDetectionScreen = ({ route }) => {
 
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
-                <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Results</Text>
 
                 <TouchableOpacity /* Profile icon */

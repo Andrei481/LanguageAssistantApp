@@ -45,6 +45,11 @@ const styles = StyleSheet.create({
         width: '100%',
         borderRadius: 13,
     },
+    container_CANCEL: {
+        backgroundColor: 'white',
+        width: '100%',
+        borderRadius: 13,
+    },
 
     text: {
         fontWeight: 'bold',
@@ -59,6 +64,9 @@ const styles = StyleSheet.create({
     text_TERTIARY: {
         color: 'black',
         textDecorationLine: 'underline',
+    },
+    text_CANCEL: {
+        color: 'grey'
     }
 });
 

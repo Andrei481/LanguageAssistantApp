@@ -1,5 +1,5 @@
 import { serverIp, serverPort } from '../../network';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
@@ -21,6 +21,11 @@ const SignupScreen = () => {
 
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
+
+    useEffect(() => {
+        /* Run every time the screen is rendered */
+        StatusBar.setBarStyle('dark-content');
+    }, []);
 
     const handleRegister = () => {
         const usernameRegex = /^[a-zA-Z0-9._-]+$/;
@@ -109,7 +114,6 @@ const SignupScreen = () => {
 
     return (
         <View style={styles.root}>
-            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
             <Text style={styles.text}>Sign up</Text>
             <CustomInput
                 placeholder="First Name"

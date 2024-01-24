@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { serverIp, serverPort } from '../../network';
-import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar, Modal, TextInput } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
-import Dialog from "react-native-dialog";
 
 const ForgotPasswordScreen = () => {
     const [dialogVisible, setDialogVisible] = useState(false);
@@ -15,11 +14,18 @@ const ForgotPasswordScreen = () => {
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
+    useEffect(() => {
+        /* Run every time the screen is rendered */
+        StatusBar.setBarStyle('dark-content');
+    }, []);
+
     const onSignUpPressed = () => {
         navigation.navigate('SignUp');
     };
 
     const onForgotPasswordPressed = () => {
+        StatusBar.setBarStyle('light-content');
+
         axios
             .post(`http://${serverIp}:${serverPort}/forgotpass`, { identifier: identifier })
             .then((response) => {
@@ -35,6 +41,8 @@ const ForgotPasswordScreen = () => {
 
     const handleCancel = () => {
         setDialogVisible(false);
+        StatusBar.setBarStyle('dark-content');
+
     };
 
     const handleOK = () => {
@@ -66,9 +74,14 @@ const ForgotPasswordScreen = () => {
 
     };
 
+    const handleVerificationCodeChange = (code) => {
+        /* Allow only digits */
+        const numericCode = code.replace(/[^0-9]/g, '');
+        setVerificationCode(numericCode);
+    };
+
     return (
         <View style={styles.root}>
-            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
             <Text style={styles.text_title}>Forgot your password?</Text>
             <View>
                 <Text style={styles.text_help}>Don't worry, we can help you recover it.</Text>
@@ -93,15 +106,72 @@ const ForgotPasswordScreen = () => {
                     type='TERTIARY'
                 />
             </View>
-            <Dialog.Container visible={dialogVisible}>
-                <Dialog.Title
-                    style={{ fontWeight: 'bold', fontSize: 18 }}>
-                    Please enter the verification code sent to your email
-                </Dialog.Title>
-                <Dialog.Input onChangeText={setVerificationCode} />
-                <Dialog.Button label="Cancel" onPress={handleCancel} />
-                <Dialog.Button label="OK" onPress={handleOK} />
-            </Dialog.Container>
+
+            <Modal /* Verification code dialog */
+                transparent={true}
+                statusBarTranslucent={true}
+                animationType="fade"
+                visible={dialogVisible}
+            >
+                <View /* Shadow */
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+
+                    <View /* Card */
+                        style={{ width: '80%', backgroundColor: '#f2f2f2', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+
+                        <Text /* Title */
+                            style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue', marginBottom: 20 }}>Verification
+                        </Text>
+
+                        <Text /* Title */
+                            style={{ marginBottom: 20 }}>Enter the code we sent to your email
+                        </Text>
+
+                        <TextInput
+                            style={{
+                                fontSize: 40,
+                                borderRadius: 10,
+                                marginBottom: 20,
+                                backgroundColor: 'white',
+                                padding: 10,
+                            }}
+                            placeholder="000000"
+                            placeholderTextColor="lightgrey"
+                            keyboardType="numeric"
+                            maxLength={6}
+                            value={verificationCode}
+                            onChangeText={handleVerificationCodeChange}
+                        />
+
+                        <View /* Button row */
+                            style={{ flexDirection: 'row', width: '100%' }}>
+
+                            <View /* Cancel button */
+                                style={{ flex: 0.5, marginRight: 10 }}>
+                                <CustomButton
+                                    text="Cancel"
+                                    onPress={handleCancel}
+                                    type="CANCEL"
+                                />
+                            </View>
+
+                            <View /* Verify button */
+                                style={{ flex: 0.5, marginLeft: 10 }}>
+                                <CustomButton
+                                    text="Verify"
+                                    onPress={handleOK}
+                                    type="PRIMARY"
+                                />
+                            </View>
+
+                        </View>
+
+                    </View>
+
+                </View>
+            </Modal>
+
+
         </View>
     );
 };

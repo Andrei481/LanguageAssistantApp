@@ -85,6 +85,7 @@ const HomeScreen = ({ route }) => {
 
     useEffect(() => {
         /* Run every time the screen is rendered */
+        StatusBar.setBarStyle('light-content');
 
         const loadModel = async () => {
             await loadMobilenetAlpha();
@@ -275,7 +276,6 @@ const HomeScreen = ({ route }) => {
 
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
-                <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
 
                 <TouchableOpacity /* Language Assistant */
                     onPress={() => openAbout()}>

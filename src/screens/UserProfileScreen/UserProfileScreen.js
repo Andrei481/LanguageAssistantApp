@@ -36,11 +36,11 @@ const UserProfileScreen = ({ route }) => {
     };
 
     useEffect(() => {
-
+        StatusBar.setBarStyle('light-content');
         fetchDetectedImages();
         fetchUserData();
 
-    }, [userId]);
+    }, []);
 
     const clearHistoryPress = async () => {
         Alert.alert(
@@ -157,7 +157,6 @@ const UserProfileScreen = ({ route }) => {
 
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
-                <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Your profile</Text>
             </View>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { serverIp, serverPort } from '../../network';
 import { View, Text, StyleSheet, Alert, StatusBar } from 'react-native';
 import CustomInput from '../../components/CustomInput';
@@ -12,6 +12,11 @@ const ResetPasswordScreen = ({ route }) => {
 
     const { identifier } = route.params; // Access identifier here
     const navigation = useNavigation();
+
+    useEffect(() => {
+        /* Run every time the screen is rendered */
+        StatusBar.setBarStyle('dark-content');
+    }, []);
 
     const onResetPasswordPressed = () => {
         axios
@@ -31,7 +36,6 @@ const ResetPasswordScreen = ({ route }) => {
 
     return (
         <View style={styles.root}>
-            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
             <Text style={styles.text_title}>Reset Password</Text>
             <CustomInput
                 placeholder="New Password"
