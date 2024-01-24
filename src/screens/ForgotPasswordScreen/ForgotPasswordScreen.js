@@ -41,6 +41,7 @@ const ForgotPasswordScreen = () => {
 
     const handleCancel = () => {
         setDialogVisible(false);
+        setVerificationCode('');
         StatusBar.setBarStyle('dark-content');
 
     };
@@ -81,7 +82,9 @@ const ForgotPasswordScreen = () => {
     };
 
     return (
+
         <View style={styles.root}>
+
             <Text style={styles.text_title}>Forgot your password?</Text>
             <View>
                 <Text style={styles.text_help}>Don't worry, we can help you recover it.</Text>
@@ -173,6 +176,7 @@ const ForgotPasswordScreen = () => {
 
 
         </View>
+
     );
 };
 

@@ -31,6 +31,7 @@ const HomeScreen = ({ route }) => {
     const [isProfileInfoVisible, setIsProfileInfoVisible] = useState(false);
     const [mobilenetAlpha, setMobilenetAlpha] = useState(1);
     const [changedAlpha, setChangedAlpha] = useState(false);
+    const [initialLoadModel, setInitialLoadModel] = useState(false);
     const screenWidth = Dimensions.get('window').width;
 
     const loadMobilenetAlpha = async () => {
@@ -89,11 +90,16 @@ const HomeScreen = ({ route }) => {
 
         const loadModel = async () => {
             await loadMobilenetAlpha();
-            await loadMobileNet();
+            setInitialLoadModel(true);
         };
 
         loadModel();
     }, []);
+
+    useEffect(() => {
+        /* Ugly workaround to wait until alpha is loaded */
+        if (initialLoadModel) loadMobileNet();
+    }, [initialLoadModel]);
 
     const openAbout = () => {
         setIsAboutVisible(true);
