@@ -308,47 +308,53 @@ const HomeScreen = ({ route }) => {
                         disabled={pickedImageLow === '' || !isModelLoaded}
                     />
                 </View>
+                <Text /* Loading */
+                    style={{ opacity: isModelLoaded ? 0 : 1 }}>Loading MobileNet (alpha {mobilenetAlpha.toFixed(2)})...
+                </Text>
 
-                <Text style={{ opacity: isModelLoaded ? 0 : 1 }}>Loading MobileNet (alpha {mobilenetAlpha.toFixed(2)})...</Text>
+                <View /* Choose image */
+                    style={{ flex: 1 }}>
+                    <View /* Spacing */
+                        style={{ flex: 0.8 }} />
+                    <View /* Buttons */
+                        style={{ flexDirection: 'row', margin: 10 }}>
 
-                <View /* Choose image bar */
-                    style={{ position: 'absolute', bottom: 40, flexDirection: 'row' }}>
-
-                    <TouchableOpacity /* Camera button */
-                        onPress={openCamera}>
-                        <View style={{ borderTopLeftRadius: 13, borderBottomLeftRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
-                            <Icon name="photo-camera" size={40} color="#fff" />
-                        </View>
-                    </TouchableOpacity>
-
-                    <View /* Devider */
-                        style={{ width: 1, backgroundColor: 'white' }} />
-
-                    <TouchableOpacity /* Gallery button icon */
-                        onPress={pickImage} >
-                        <View style={{ borderTopRightRadius: 13, borderBottomRightRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
-                            <Icon name="image" size={40} color="#fff" />
-                        </View>
-                    </TouchableOpacity>
-
-                    <Modal  /* Detecting objects overlay */
-                        transparent={true}
-                        animationType="fade"
-                        visible={isDetecting}
-                        statusBarTranslucent={true}
-                    >
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
-                            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
-                                <ActivityIndicator size="large" color="darkblue" />
-                                <Text>Detecting objects...</Text>
+                        <TouchableOpacity /* Camera button */
+                            onPress={openCamera}>
+                            <View style={{ borderTopLeftRadius: 13, borderBottomLeftRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
+                                <Icon name="photo-camera" size={40} color="#fff" />
                             </View>
-                        </View>
+                        </TouchableOpacity>
 
-                    </Modal>
+                        <View /* Devider */
+                            style={{ width: 1, backgroundColor: 'white' }} />
 
+                        <TouchableOpacity /* Gallery button icon */
+                            onPress={pickImage} >
+                            <View style={{ borderTopRightRadius: 13, borderBottomRightRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
+                                <Icon name="image" size={40} color="#fff" />
+                            </View>
+                        </TouchableOpacity>
+
+                        <Modal  /* Detecting objects overlay */
+                            transparent={true}
+                            animationType="fade"
+                            visible={isDetecting}
+                            statusBarTranslucent={true}
+                        >
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                                <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+                                    <ActivityIndicator size="large" color="darkblue" />
+                                    <Text>Detecting objects...</Text>
+                                </View>
+                            </View>
+
+                        </Modal>
+
+                    </View>
                 </View>
-
             </View>
+
             <Modal  /* About overlay */
                 transparent={true}
                 statusBarTranslucent={true}
