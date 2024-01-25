@@ -181,7 +181,7 @@ const SignupScreen = () => {
                 visible={dialogVisible}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* Card */
                         style={{ width: '80%', backgroundColor: '#f2f2f2', padding: 20, borderRadius: 13, alignItems: 'center' }}>

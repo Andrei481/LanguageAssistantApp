@@ -348,7 +348,7 @@ const HomeScreen = ({ route }) => {
                             visible={isDetecting}
                             statusBarTranslucent={true}
                         >
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
                                 <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
                                     <ActivityIndicator size="large" color="darkblue" />
                                     <Text>Detecting objects...</Text>
@@ -369,7 +369,7 @@ const HomeScreen = ({ route }) => {
                 onRequestClose={closeAbout}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* About card */
                         style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
@@ -439,7 +439,7 @@ const HomeScreen = ({ route }) => {
                 onRequestClose={closeProfileInfo}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* Go online card */
                         style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
