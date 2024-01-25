@@ -24,11 +24,11 @@ const ForgotPasswordScreen = () => {
     };
 
     const onForgotPasswordPressed = () => {
-        StatusBar.setBarStyle('light-content');
 
         axios
             .post(`http://${serverIp}:${serverPort}/forgotpass`, { identifier: identifier })
             .then((response) => {
+                StatusBar.setBarStyle('light-content');
                 setDialogVisible(true);
             })
             .catch((error) => {
@@ -40,9 +40,9 @@ const ForgotPasswordScreen = () => {
     };
 
     const handleCancel = () => {
+        StatusBar.setBarStyle('dark-content');
         setDialogVisible(false);
         setVerificationCode('');
-        StatusBar.setBarStyle('dark-content');
 
     };
 
@@ -71,6 +71,7 @@ const ForgotPasswordScreen = () => {
                 }
             });
 
+        StatusBar.setBarStyle('dark-content');
         setDialogVisible(false);
 
     };

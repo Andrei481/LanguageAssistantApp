@@ -40,6 +40,7 @@ const LoginScreen = () => {
                 AsyncStorage.setItem("authToken", token);
                 AsyncStorage.setItem("userId", userId);
                 navigation.navigate("Home", { userId });
+                setPassword("");
             })
             .catch((error) => {
                 if (!error.response)
