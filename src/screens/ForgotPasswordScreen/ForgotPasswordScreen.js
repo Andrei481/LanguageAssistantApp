@@ -8,6 +8,7 @@ import axios from "axios";
 
 const ForgotPasswordScreen = () => {
     const [dialogVisible, setDialogVisible] = useState(false);
+    const [statusBarStyle, setStatusBarStyle] = useState('dark-content');
     const [verificationCode, setVerificationCode] = useState('');
     const [identifier, setIdentifier] = useState('');
 
@@ -15,9 +16,21 @@ const ForgotPasswordScreen = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
-        /* Run every time the screen is rendered */
-        StatusBar.setBarStyle('dark-content');
-    }, []);
+        /* Try to show the dialog only after the status bar changed*/
+        if (statusBarStyle === 'dark-content') {
+            setDialogVisible(false);
+        } else {
+            setDialogVisible(true);
+        }
+    }, [statusBarStyle]);
+
+    const showDialog = () => {
+        setStatusBarStyle('light-content');
+    };
+
+    const hideDialog = () => {
+        setStatusBarStyle('dark-content');
+    };
 
     const onSignUpPressed = () => {
         navigation.navigate('SignUp');
@@ -28,8 +41,7 @@ const ForgotPasswordScreen = () => {
         axios
             .post(`http://${serverIp}:${serverPort}/forgotpass`, { identifier: identifier })
             .then((response) => {
-                StatusBar.setBarStyle('light-content');
-                setDialogVisible(true);
+                showDialog();
             })
             .catch((error) => {
                 if (!error.response)
@@ -40,10 +52,8 @@ const ForgotPasswordScreen = () => {
     };
 
     const handleCancel = () => {
-        StatusBar.setBarStyle('dark-content');
-        setDialogVisible(false);
+        hideDialog();
         setVerificationCode('');
-
     };
 
     const handleOK = () => {
@@ -71,9 +81,7 @@ const ForgotPasswordScreen = () => {
                 }
             });
 
-        StatusBar.setBarStyle('dark-content');
-        setDialogVisible(false);
-
+        hideDialog();
     };
 
     const handleVerificationCodeChange = (code) => {
@@ -85,6 +93,7 @@ const ForgotPasswordScreen = () => {
     return (
 
         <View style={styles.root}>
+            <StatusBar barStyle={statusBarStyle} backgroundColor={'transparent'} translucent={true} />
 
             <Text style={styles.text_title}>Forgot your password?</Text>
             <View>

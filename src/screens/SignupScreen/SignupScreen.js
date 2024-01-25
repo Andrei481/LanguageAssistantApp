@@ -8,6 +8,7 @@ import axios from "axios";
 
 const SignupScreen = () => {
     const [dialogVisible, setDialogVisible] = useState(false);
+    const [statusBarStyle, setStatusBarStyle] = useState('dark-content');
     const [verificationCode, setVerificationCode] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -15,14 +16,26 @@ const SignupScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
     useEffect(() => {
-        /* Run every time the screen is rendered */
-        StatusBar.setBarStyle('dark-content');
-    }, []);
+        /* Try to show the dialog only after the status bar changed*/
+        if (statusBarStyle === 'dark-content') {
+            setDialogVisible(false);
+        } else {
+            setDialogVisible(true);
+        }
+    }, [statusBarStyle]);
+
+    const showDialog = () => {
+        setStatusBarStyle('light-content');
+    };
+
+    const hideDialog = () => {
+        setStatusBarStyle('dark-content');
+    };
+
 
     const handleRegister = () => {
         const usernameRegex = /^[a-zA-Z0-9._-]+$/;
@@ -53,8 +66,7 @@ const SignupScreen = () => {
         };
         axios.post(`http://${serverIp}:${serverPort}/register`, user)
             .then((response) => {
-                StatusBar.setBarStyle('light-content');
-                setDialogVisible(true);
+                showDialog();
             })
             .catch((error) => {
                 if (error.response) {
@@ -66,10 +78,8 @@ const SignupScreen = () => {
     };
 
     const handleCancel = () => {
-        StatusBar.setBarStyle('dark-content');
-        setDialogVisible(false);
+        hideDialog();
         setVerificationCode('');
-
         //delete user from db
     };
 
@@ -87,8 +97,6 @@ const SignupScreen = () => {
                 setEmail("");
                 setPassword("");
                 setConfirmPassword("");
-                StatusBar.setBarStyle('dark-content');
-                setDialogVisible(false);
 
                 const userId = response.data.userId;
                 navigation.navigate("Home", { userId });
@@ -108,7 +116,7 @@ const SignupScreen = () => {
                 }
             });
 
-
+        hideDialog();
     };
 
     const handleVerificationCodeChange = (code) => {
@@ -123,6 +131,7 @@ const SignupScreen = () => {
 
     return (
         <View style={styles.root}>
+            <StatusBar barStyle={statusBarStyle} backgroundColor={'transparent'} translucent={true} />
             <Text style={styles.text}>Sign up</Text>
             <CustomInput
                 placeholder="First Name"
