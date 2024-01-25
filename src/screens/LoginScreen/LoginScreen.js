@@ -17,6 +17,9 @@ const LoginScreen = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
+        StatusBar.setBarStyle('dark-content');
+        StatusBar.setBackgroundColor('transparent');
+        StatusBar.setTranslucent(true);
         NavigationBar.setButtonStyleAsync('dark');
         NavigationBar.setBackgroundColorAsync('#f2f2f2');
     }, []);
@@ -37,6 +40,7 @@ const LoginScreen = () => {
                 AsyncStorage.setItem("authToken", token);
                 AsyncStorage.setItem("userId", userId);
                 navigation.navigate("Home", { userId });
+                setPassword("");
             })
             .catch((error) => {
                 if (!error.response)
@@ -54,7 +58,6 @@ const LoginScreen = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView>
                 <View style={{ height: height, alignItems: 'center', justifyContent: 'center' }}>
-                    <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
 
                     <View /* Image box */
                         style={{ width: '70%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' }}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
@@ -10,6 +10,7 @@ import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
+import * as Device from 'expo-device';
 import axios from "axios";
 import { serverIp, serverPort } from '../../network';
 import appIcon from '../../../assets/icon.png';
@@ -27,11 +28,14 @@ const HomeScreen = ({ route }) => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [isAboutVisible, setIsAboutVisible] = useState(false);
+    const [isProfileInfoVisible, setIsProfileInfoVisible] = useState(false);
     const [mobilenetAlpha, setMobilenetAlpha] = useState(1);
     const [changedAlpha, setChangedAlpha] = useState(false);
+    const [initialLoadModel, setInitialLoadModel] = useState(false);
     const screenWidth = Dimensions.get('window').width;
 
     const loadMobilenetAlpha = async () => {
+        /* Load alpha value from local storage */
         try {
             const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
             const fileInfo = await FileSystem.getInfoAsync(fileUri);
@@ -39,25 +43,36 @@ const HomeScreen = ({ route }) => {
             if (fileInfo.exists) {
                 const content = await FileSystem.readAsStringAsync(fileUri);
                 setMobilenetAlpha(parseFloat(content));
-            } else {
-                setMobilenetAlpha(1);
-                saveMobilenetAlpha();
+                return;
             }
+
+            if (Device.brand === 'google') {
+                setMobilenetAlpha(0.75);
+                saveMobilenetAlpha();
+                return;
+            }
+
+            /* Default value */
+            setMobilenetAlpha(1);
+            saveMobilenetAlpha();
+
         } catch (error) {
-            Alert.alert('Error loading mobilenetAlpha from FileSystem:', error);
+            Alert.alert('Error loading MobileNet alpha', error);
         }
     };
 
     const saveMobilenetAlpha = async () => {
+        /* Store alpha value in local storage */
         try {
             const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
             await FileSystem.writeAsStringAsync(fileUri, mobilenetAlpha.toString());
         } catch (error) {
-            Alert.alert('Error saving mobilenetAlpha to FileSystem:', error);
+            Alert.alert('Error storing MobileNet alpha', error);
         }
     };
 
-    const loadModel = async () => {
+    const loadMobileNet = async () => {
+        /* Load MobileNet model with selected alpha */
         try {
             setisModelLoaded(false);
             await tf.ready();
@@ -70,9 +85,21 @@ const HomeScreen = ({ route }) => {
     };
 
     useEffect(() => {
-        loadMobilenetAlpha();   //execute this on app launch instead of every time the screen is rendered
+        /* Run every time the screen is rendered */
+        StatusBar.setBarStyle('light-content');
+
+        const loadModel = async () => {
+            await loadMobilenetAlpha();
+            setInitialLoadModel(true);
+        };
+
         loadModel();
     }, []);
+
+    useEffect(() => {
+        /* Ugly workaround to wait until alpha is loaded */
+        if (initialLoadModel) loadMobileNet();
+    }, [initialLoadModel]);
 
     const openAbout = () => {
         setIsAboutVisible(true);
@@ -81,11 +108,19 @@ const HomeScreen = ({ route }) => {
     const closeAbout = () => {
         setIsAboutVisible(false);
         if (changedAlpha) {
-            loadModel();
+            loadMobileNet();
             saveMobilenetAlpha();
             setChangedAlpha(false);
         }
     }
+
+    const openProfileInfo = () => {
+        setIsProfileInfoVisible(true);
+    };
+
+    const closeProfileInfo = () => {
+        setIsProfileInfoVisible(false);
+    };
 
     const toggleAlpha = () => {
         if (mobilenetAlpha === 1) {
@@ -232,6 +267,14 @@ const HomeScreen = ({ route }) => {
         }
     };
 
+    const handleProfilePress = () => {
+        if (userId == 0) {
+            openProfileInfo();
+        } else {
+            navigation.navigate('User Profile', { userId });
+        }
+    };
+
     return (
 
         <View /* Page */
@@ -239,7 +282,6 @@ const HomeScreen = ({ route }) => {
 
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
-                <StatusBar barStyle='default' backgroundColor={'transparent'} translucent={true} />
 
                 <TouchableOpacity /* Language Assistant */
                     onPress={() => openAbout()}>
@@ -247,15 +289,13 @@ const HomeScreen = ({ route }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity /* Profile icon */
-                    style={{ opacity: userId === 0 ? 0 : 1 }}
-                    disabled={userId === 0}
-                    onPress={() => { navigation.navigate('User Profile', { userId }); }}>
+                    onPress={handleProfilePress}>
                     <Icon name="account-circle" size={30} color="#fff" />
                 </TouchableOpacity>
             </View>
 
             <View /* Image box */
-                style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
+                style={{ width: screenWidth - 40, margin: 20, aspectRatio: 1, backgroundColor: 'white', borderWidth: 1, borderColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
                 {pickedImageHigh ?
                     <Image source={{ uri: pickedImageHigh }} style={{ width: '100%', height: '100%' }} /> :
                     <Text style={{ fontWeight: 'bold', fontSize: (screenWidth) * 0.08, color: 'darkblue', padding: 10 }}>Choose an image</Text>
@@ -274,52 +314,59 @@ const HomeScreen = ({ route }) => {
                         disabled={pickedImageLow === '' || !isModelLoaded}
                     />
                 </View>
+                <Text /* Loading */
+                    style={{ opacity: isModelLoaded ? 0 : 1 }}>Loading MobileNet (alpha {mobilenetAlpha.toFixed(2)})...
+                </Text>
 
-                <Text style={{ opacity: isModelLoaded ? 0 : 1 }}>Loading MobileNet (alpha {mobilenetAlpha.toFixed(2)})...</Text>
+                <View /* Choose image */
+                    style={{ flex: 1 }}>
+                    <View /* Spacing */
+                        style={{ flex: 0.8 }} />
+                    <View /* Buttons */
+                        style={{ flexDirection: 'row', margin: 10 }}>
 
-                <View /* Choose image bar */
-                    style={{ position: 'absolute', bottom: 40, flexDirection: 'row' }}>
-
-                    <TouchableOpacity /* Camera button */
-                        onPress={openCamera}>
-                        <View style={{ borderTopLeftRadius: 13, borderBottomLeftRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
-                            <Icon name="photo-camera" size={40} color="#fff" />
-                        </View>
-                    </TouchableOpacity>
-
-                    <View /* Devider */
-                        style={{ width: 1, backgroundColor: 'white' }} />
-
-                    <TouchableOpacity /* Gallery button icon */
-                        onPress={pickImage} >
-                        <View style={{ borderTopRightRadius: 13, borderBottomRightRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
-                            <Icon name="image" size={40} color="#fff" />
-                        </View>
-                    </TouchableOpacity>
-
-                    <Modal  /* Detecting objects overlay */
-                        transparent={true}
-                        animationType="fade"
-                        visible={isDetecting}
-                        statusBarTranslucent={true}
-                    >
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
-                            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
-                                <ActivityIndicator size="large" color="darkblue" />
-                                <Text>Detecting objects...</Text>
+                        <TouchableOpacity /* Camera button */
+                            onPress={openCamera}>
+                            <View style={{ borderTopLeftRadius: 13, borderBottomLeftRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
+                                <Icon name="photo-camera" size={40} color="#fff" />
                             </View>
-                        </View>
+                        </TouchableOpacity>
 
-                    </Modal>
+                        <View /* Devider */
+                            style={{ width: 1, backgroundColor: 'white' }} />
 
+                        <TouchableOpacity /* Gallery button icon */
+                            onPress={pickImage} >
+                            <View style={{ borderTopRightRadius: 13, borderBottomRightRadius: 13, padding: 10, backgroundColor: '#6499E9' }} >
+                                <Icon name="image" size={40} color="#fff" />
+                            </View>
+                        </TouchableOpacity>
+
+                        <Modal  /* Detecting objects overlay */
+                            transparent={true}
+                            animationType="fade"
+                            visible={isDetecting}
+                            statusBarTranslucent={true}
+                        >
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                                <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+                                    <ActivityIndicator size="large" color="darkblue" />
+                                    <Text>Detecting objects...</Text>
+                                </View>
+                            </View>
+
+                        </Modal>
+
+                    </View>
                 </View>
-
             </View>
+
             <Modal  /* About overlay */
                 transparent={true}
+                statusBarTranslucent={true}
                 animationType="fade"
                 visible={isAboutVisible}
-                statusBarTranslucent={true}
+                onRequestClose={closeAbout}
             >
                 <View /* Shadow */
                     style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
@@ -330,29 +377,45 @@ const HomeScreen = ({ route }) => {
                         <Text /* Title */
                             style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue', marginBottom: 20 }}>About
                         </Text>
+
                         <View /* Icon */
                             style={{ width: '40%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }} >
-                            <Image source={appIcon} style={{ borderRadius: 90, width: '100%', height: '100%' }} />
+                            <Image source={appIcon} style={{ borderRadius: 80, width: '100%', height: '100%' }} />
                         </View>
-                        <Text /* Description */
-                            style={{ textAlign: 'center', marginBottom: 20 }}>
-                            Language Assistant Description
+
+                        <Text /* Description title */
+                            style={{ textAlign: 'center' }}>
+                            Welcome to Language Assistant!
                         </Text>
-                        <View style={{ flexDirection: 'row', marginBottom: 20 }}>
-                            <View style={{ flex: 0.5, paddingRight: 5 }}>
+                        <Text /* Description body */
+                            style={{ textAlign: 'center', marginBottom: 20 }}>
+                            Your AI-powered language learning companion
+                        </Text>
+
+                        <View /* Info */
+                            style={{ flexDirection: 'row', marginBottom: 20 }}>
+                            <View /* Left side - keys */
+                                style={{ flex: 0.5, paddingRight: 5 }}>
                                 <Text style={{ textAlign: 'right', marginBottom: 5 }}>MobileNet alpha:</Text>
                                 <Text style={{ textAlign: 'right', marginBottom: 5 }}>Version:</Text>
+                                <Text style={{ textAlign: 'right', marginBottom: 5 }}>Repository:</Text>
                                 <Text style={{ textAlign: 'right' }}>Developers:</Text>
                             </View>
-                            <View style={{ flex: 0.5, paddingRight: 5 }}>
+                            <View /* Right side - values */
+                                style={{ flex: 0.5, paddingRight: 5 }}>
                                 <TouchableOpacity onPress={() => { toggleAlpha() }}>
                                     <Text style={{ textAlign: 'left', marginBottom: 5, fontWeight: 'bold', color: 'darkblue' }}>{mobilenetAlpha.toFixed(2)}</Text>
                                 </TouchableOpacity>
                                 <Text style={{ textAlign: 'left', marginBottom: 5 }}>{appInfo.expo.version}</Text>
+                                <TouchableOpacity
+                                    onPress={() => Linking.openURL('https://github.com/Andrei481/LanguageAssistantApp')}>
+                                    <Text style={{ textAlign: 'left', marginBottom: 5, fontWeight: 'bold', color: 'darkblue' }}>GitHub</Text>
+                                </TouchableOpacity>
                                 <Text style={{ textAlign: 'left' }}>Joldea Andrei</Text>
                                 <Text style={{ textAlign: 'left' }}>Lazarov Andrei</Text>
                             </View>
                         </View>
+
                         <View /* Close button */
                             style={{ width: '100%', marginTop: 10 }}>
                             <CustomButton
@@ -366,6 +429,42 @@ const HomeScreen = ({ route }) => {
 
                 </View>
 
+            </Modal>
+
+            <Modal /* Profile info overlay */
+                transparent={true}
+                statusBarTranslucent={true}
+                animationType="fade"
+                visible={isProfileInfoVisible}
+                onRequestClose={closeProfileInfo}
+            >
+                <View /* Shadow */
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+
+                    <View /* Go online card */
+                        style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
+
+                        <Text /* Title */
+                            style={{ fontWeight: 'bold', fontSize: 22, color: 'darkblue', marginBottom: 20 }}>Go online
+                        </Text>
+
+                        <Text /* Description body */
+                            style={{ textAlign: 'center', marginBottom: 20 }}>
+                            Create an account to access the profile page. Here you will find your progress and past detections.
+                        </Text>
+
+                        <View /* Close button */
+                            style={{ width: '100%', marginTop: 10 }}>
+                            <CustomButton
+                                text="Close"
+                                onPress={closeProfileInfo}
+                                type="PRIMARY"
+                            />
+                        </View>
+
+                    </View>
+
+                </View>
             </Modal>
 
         </View>
