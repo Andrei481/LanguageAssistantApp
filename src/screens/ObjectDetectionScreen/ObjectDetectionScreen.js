@@ -6,6 +6,7 @@ import { languages } from '../../languages';
 import translate from 'translate-google-api';
 import useTranslation from '../../useTranslation';
 import * as Speech from 'expo-speech';
+import * as NavigationBar from 'expo-navigation-bar';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 
@@ -64,10 +65,12 @@ const ObjectDetectionScreen = ({ route }) => {
 
     const openProfileInfo = () => {
         setIsProfileInfoVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
     };
 
     const closeProfileInfo = () => {
         setIsProfileInfoVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
     };
 
     const handleProfilePress = () => {

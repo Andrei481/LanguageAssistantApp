@@ -4,32 +4,27 @@ import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar, Modal, T
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
+import * as NavigationBar from 'expo-navigation-bar';
 import axios from "axios";
 
 const ForgotPasswordScreen = () => {
     const [dialogVisible, setDialogVisible] = useState(false);
-    const [statusBarStyle, setStatusBarStyle] = useState('dark-content');
     const [verificationCode, setVerificationCode] = useState('');
     const [identifier, setIdentifier] = useState('');
 
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
-    useEffect(() => {
-        /* Try to show the dialog only after the status bar changed*/
-        if (statusBarStyle === 'dark-content') {
-            setDialogVisible(false);
-        } else {
-            setDialogVisible(true);
-        }
-    }, [statusBarStyle]);
-
     const showDialog = () => {
-        setStatusBarStyle('light-content');
+        setDialogVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
+        StatusBar.setBarStyle('light-content');
     };
 
     const hideDialog = () => {
-        setStatusBarStyle('dark-content');
+        setDialogVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
+        StatusBar.setBarStyle('dark-content');
     };
 
     const onSignUpPressed = () => {
@@ -93,7 +88,6 @@ const ForgotPasswordScreen = () => {
     return (
 
         <View style={styles.root}>
-            <StatusBar barStyle={statusBarStyle} backgroundColor={'transparent'} translucent={true} />
 
             <Text style={styles.text_title}>Forgot your password?</Text>
             <View>

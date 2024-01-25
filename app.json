@@ -7,12 +7,12 @@
         "orientation": "portrait",
         "icon": "./assets/icon.png",
         "androidStatusBar": {
-            "barStyle": "dark-content",
-            "backgroundColor": "#F2F2F2"
+            "barStyle": "light-content",
+            "backgroundColor": "#616161"
         },
         "androidNavigationBar": {
-            "barStyle": "dark-content",
-            "backgroundColor": "#F2F2F2"
+            "barStyle": "light-content",
+            "backgroundColor": "#616161"
         },
         "userInterfaceStyle": "light",
         "splash": {

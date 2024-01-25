@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
+import * as NavigationBar from 'expo-navigation-bar';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
 import * as Device from 'expo-device';
@@ -102,10 +103,12 @@ const HomeScreen = ({ route }) => {
 
     const openAbout = () => {
         setIsAboutVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
     };
 
     const closeAbout = () => {
         setIsAboutVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
         if (changedAlpha) {
             loadMobileNet();
             saveMobilenetAlpha();
@@ -115,10 +118,12 @@ const HomeScreen = ({ route }) => {
 
     const openProfileInfo = () => {
         setIsProfileInfoVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
     };
 
     const closeProfileInfo = () => {
         setIsProfileInfoVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
     };
 
     const toggleAlpha = () => {
@@ -210,6 +215,7 @@ const HomeScreen = ({ route }) => {
                 return;
             }
             setisDetecting(true);
+            NavigationBar.setButtonStyleAsync('light');
 
             // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImageLow, {
@@ -259,10 +265,12 @@ const HomeScreen = ({ route }) => {
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
             setisDetecting(false);
+            NavigationBar.setButtonStyleAsync('dark');
 
         } catch (err) {
             Alert.alert("Detection error", err.message || "Something went wrong.");
             setisDetecting(false);
+            NavigationBar.setButtonStyleAsync('dark');
         }
     };
 
