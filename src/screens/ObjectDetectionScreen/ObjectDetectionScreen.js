@@ -6,6 +6,7 @@ import { languages } from '../../languages';
 import translate from 'translate-google-api';
 import useTranslation from '../../useTranslation';
 import * as Speech from 'expo-speech';
+import * as NavigationBar from 'expo-navigation-bar';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 
@@ -24,11 +25,6 @@ const ObjectDetectionScreen = ({ route }) => {
             value: code,
         }))
     );
-
-    useEffect(() => {
-        /* Run every time the screen is rendered */
-        StatusBar.setBarStyle('light-content');
-    }, []);
 
     const getObjectInfo = () => {
         if (prediction && prediction.length > 0) {
@@ -69,10 +65,12 @@ const ObjectDetectionScreen = ({ route }) => {
 
     const openProfileInfo = () => {
         setIsProfileInfoVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
     };
 
     const closeProfileInfo = () => {
         setIsProfileInfoVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
     };
 
     const handleProfilePress = () => {
@@ -90,6 +88,7 @@ const ObjectDetectionScreen = ({ route }) => {
 
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
+                <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} translucent={true} />
                 <Text style={{ fontWeight: 'bold', fontSize: 22, color: 'white' }}>Results</Text>
 
                 <TouchableOpacity /* Profile icon */
@@ -169,7 +168,7 @@ const ObjectDetectionScreen = ({ route }) => {
                 onRequestClose={closeProfileInfo}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* Go online card */
                         style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>

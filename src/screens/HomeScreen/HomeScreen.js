@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
+import * as NavigationBar from 'expo-navigation-bar';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
 import * as Device from 'expo-device';
@@ -86,7 +87,6 @@ const HomeScreen = ({ route }) => {
 
     useEffect(() => {
         /* Run every time the screen is rendered */
-        StatusBar.setBarStyle('light-content');
 
         const loadModel = async () => {
             await loadMobilenetAlpha();
@@ -103,10 +103,12 @@ const HomeScreen = ({ route }) => {
 
     const openAbout = () => {
         setIsAboutVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
     };
 
     const closeAbout = () => {
         setIsAboutVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
         if (changedAlpha) {
             loadMobileNet();
             saveMobilenetAlpha();
@@ -116,10 +118,12 @@ const HomeScreen = ({ route }) => {
 
     const openProfileInfo = () => {
         setIsProfileInfoVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
     };
 
     const closeProfileInfo = () => {
         setIsProfileInfoVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
     };
 
     const toggleAlpha = () => {
@@ -211,6 +215,7 @@ const HomeScreen = ({ route }) => {
                 return;
             }
             setisDetecting(true);
+            NavigationBar.setButtonStyleAsync('light');
 
             // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImageLow, {
@@ -260,10 +265,12 @@ const HomeScreen = ({ route }) => {
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
             setisDetecting(false);
+            NavigationBar.setButtonStyleAsync('dark');
 
         } catch (err) {
             Alert.alert("Detection error", err.message || "Something went wrong.");
             setisDetecting(false);
+            NavigationBar.setButtonStyleAsync('dark');
         }
     };
 
@@ -282,6 +289,7 @@ const HomeScreen = ({ route }) => {
 
             <View /* Top bar */
                 style={{ width: '100%', backgroundColor: '#6499E9', flexDirection: 'row', justifyContent: 'space-between', padding: 15, paddingTop: 40, }}>
+                <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} translucent={true} />
 
                 <TouchableOpacity /* Language Assistant */
                     onPress={() => openAbout()}>
@@ -348,7 +356,7 @@ const HomeScreen = ({ route }) => {
                             visible={isDetecting}
                             statusBarTranslucent={true}
                         >
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
                                 <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
                                     <ActivityIndicator size="large" color="darkblue" />
                                     <Text>Detecting objects...</Text>
@@ -369,7 +377,7 @@ const HomeScreen = ({ route }) => {
                 onRequestClose={closeAbout}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* About card */
                         style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>
@@ -439,7 +447,7 @@ const HomeScreen = ({ route }) => {
                 onRequestClose={closeProfileInfo}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* Go online card */
                         style={{ width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 13, alignItems: 'center' }}>

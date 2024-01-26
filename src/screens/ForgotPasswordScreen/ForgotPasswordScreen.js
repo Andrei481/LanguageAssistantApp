@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar, Modal, T
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
+import * as NavigationBar from 'expo-navigation-bar';
 import axios from "axios";
 
 const ForgotPasswordScreen = () => {
@@ -14,10 +15,17 @@ const ForgotPasswordScreen = () => {
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
-    useEffect(() => {
-        /* Run every time the screen is rendered */
+    const showDialog = () => {
+        setDialogVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
+        StatusBar.setBarStyle('light-content');
+    };
+
+    const hideDialog = () => {
+        setDialogVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
         StatusBar.setBarStyle('dark-content');
-    }, []);
+    };
 
     const onSignUpPressed = () => {
         navigation.navigate('SignUp');
@@ -28,8 +36,7 @@ const ForgotPasswordScreen = () => {
         axios
             .post(`http://${serverIp}:${serverPort}/forgotpass`, { identifier: identifier })
             .then((response) => {
-                StatusBar.setBarStyle('light-content');
-                setDialogVisible(true);
+                showDialog();
             })
             .catch((error) => {
                 if (!error.response)
@@ -40,10 +47,8 @@ const ForgotPasswordScreen = () => {
     };
 
     const handleCancel = () => {
-        StatusBar.setBarStyle('dark-content');
-        setDialogVisible(false);
+        hideDialog();
         setVerificationCode('');
-
     };
 
     const handleOK = () => {
@@ -71,9 +76,7 @@ const ForgotPasswordScreen = () => {
                 }
             });
 
-        StatusBar.setBarStyle('dark-content');
-        setDialogVisible(false);
-
+        hideDialog();
     };
 
     const handleVerificationCodeChange = (code) => {
@@ -118,7 +121,7 @@ const ForgotPasswordScreen = () => {
                 visible={dialogVisible}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* Card */
                         style={{ width: '80%', backgroundColor: '#f2f2f2', padding: 20, borderRadius: 13, alignItems: 'center' }}>

@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar, Modal, T
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import * as NavigationBar from 'expo-navigation-bar';
 import axios from "axios";
 
 const SignupScreen = () => {
@@ -15,14 +16,21 @@ const SignupScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
-    useEffect(() => {
-        /* Run every time the screen is rendered */
+    const showDialog = () => {
+        setDialogVisible(true);
+        NavigationBar.setButtonStyleAsync('light');
+        StatusBar.setBarStyle('light-content');
+    };
+
+    const hideDialog = () => {
+        setDialogVisible(false);
+        NavigationBar.setButtonStyleAsync('dark');
         StatusBar.setBarStyle('dark-content');
-    }, []);
+    };
+
 
     const handleRegister = () => {
         const usernameRegex = /^[a-zA-Z0-9._-]+$/;
@@ -53,8 +61,7 @@ const SignupScreen = () => {
         };
         axios.post(`http://${serverIp}:${serverPort}/register`, user)
             .then((response) => {
-                StatusBar.setBarStyle('light-content');
-                setDialogVisible(true);
+                showDialog();
             })
             .catch((error) => {
                 if (error.response) {
@@ -66,10 +73,8 @@ const SignupScreen = () => {
     };
 
     const handleCancel = () => {
-        StatusBar.setBarStyle('dark-content');
-        setDialogVisible(false);
+        hideDialog();
         setVerificationCode('');
-
         //delete user from db
     };
 
@@ -87,8 +92,6 @@ const SignupScreen = () => {
                 setEmail("");
                 setPassword("");
                 setConfirmPassword("");
-                StatusBar.setBarStyle('dark-content');
-                setDialogVisible(false);
 
                 const userId = response.data.userId;
                 navigation.navigate("Home", { userId });
@@ -108,7 +111,7 @@ const SignupScreen = () => {
                 }
             });
 
-
+        hideDialog();
     };
 
     const handleVerificationCodeChange = (code) => {
@@ -181,7 +184,7 @@ const SignupScreen = () => {
                 visible={dialogVisible}
             >
                 <View /* Shadow */
-                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
 
                     <View /* Card */
                         style={{ width: '80%', backgroundColor: '#f2f2f2', padding: 20, borderRadius: 13, alignItems: 'center' }}>

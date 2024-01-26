@@ -38,3 +38,6 @@ yarn-error.*
 # builds
 *.apk
 builds/
+
+#android folder
+android_new/

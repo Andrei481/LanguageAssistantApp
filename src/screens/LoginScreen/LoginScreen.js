@@ -12,14 +12,10 @@ import * as NavigationBar from 'expo-navigation-bar';
 const LoginScreen = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
     useEffect(() => {
-        StatusBar.setBarStyle('dark-content');
-        StatusBar.setBackgroundColor('transparent');
-        StatusBar.setTranslucent(true);
         NavigationBar.setButtonStyleAsync('dark');
         NavigationBar.setBackgroundColorAsync('#f2f2f2');
     }, []);
@@ -58,6 +54,7 @@ const LoginScreen = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView>
                 <View style={{ height: height, alignItems: 'center', justifyContent: 'center' }}>
+                    <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
 
                     <View /* Image box */
                         style={{ width: '70%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' }}>
