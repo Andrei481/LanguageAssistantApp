@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform, Linking } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform, Linking, BackHandler } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
@@ -7,7 +7,7 @@ import * as mobilenet from '@tensorflow-models/mobilenet';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as NavigationBar from 'expo-navigation-bar';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
@@ -84,6 +84,25 @@ const HomeScreen = ({ route }) => {
             Alert.alert("Model error", error.message || "Something went wrong.");
         }
     };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                Alert.alert('', 'Are you sure you want to log out?',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Log out', onPress: () => { navigation.navigate('Login'); } },
+                    ],
+                    { cancelable: false }
+                );
+                return true;
+            };
+
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+            return () => { BackHandler.removeEventListener('hardwareBackPress', onBackPress); console.log('unfocused'); };
+        }, [navigation])
+    );
 
     useEffect(() => {
         /* Run every time the screen is rendered */

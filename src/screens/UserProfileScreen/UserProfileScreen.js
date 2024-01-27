@@ -41,13 +41,12 @@ const UserProfileScreen = ({ route }) => {
     }, []);
 
     const clearHistoryPress = async () => {
-        Alert.alert(
-            undefined,  // no title
-            "Are you sure you want to delete all images?",
+        Alert.alert('', "Are you sure you want to delete all images?",
             [
-                { text: 'Cancel', onPress: () => null, style: 'cancel', },
+                { text: 'Cancel', onPress: () => null, style: 'cancel' },
                 { text: 'Delete', onPress: () => deleteAllImages() },
-            ]
+            ],
+            { cancelable: true }
         );
     };
 
