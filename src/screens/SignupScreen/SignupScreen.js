@@ -1,6 +1,6 @@
 import { serverIp, serverPort } from '../../network';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, Alert, StatusBar, Modal, TextInput, TouchableWithoutFeedback, ScrollView, Keyboard } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
@@ -136,57 +136,66 @@ const SignupScreen = () => {
     };
 
     return (
-        <View style={styles.root}>
-            <Text style={styles.text}>Sign up</Text>
-            <CustomInput
-                placeholder="First Name"
-                value={firstName}
-                setValue={setFirstName}
-                autoCapitalize="words"
-            />
-            <CustomInput
-                placeholder="Last Name"
-                value={lastName}
-                setValue={setLastName}
-                autoCapitalize="words"
-            />
-            <CustomInput
-                placeholder="Username"
-                value={username}
-                setValue={setUsername}
-            />
-            <CustomInput
-                placeholder="Email Address"
-                value={email}
-                setValue={setEmail}
-                keyboardType='email-address'
-            />
-            <CustomInput
-                placeholder="Password"
-                value={password}
-                setValue={setPassword}
-                secureTextEntry={true}
-            />
-            <CustomInput
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                setValue={setConfirmPassword}
-                secureTextEntry={true}
-            />
-            <View style={{ width: 200, marginTop: 10 }}>
-                <CustomButton
-                    text='Create Account' onPress={handleRegister}
-                    type='PRIMARY'
-                    disabled={!firstName || !lastName || !username || !email || !password || !confirmPassword}
-                />
-            </View>
-            <View style={[styles.container_login, { top: height - 100 }]}>
-                <Text>Already have an account?</Text>
-                <CustomButton
-                    text='Login!' onPress={onLoginPressed}
-                    type='TERTIARY'
-                />
-            </View>
+        <View>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <ScrollView >
+
+                    <View style={{ height: height - 60, justifyContent: 'center', alignItems: 'center', padding: 50 }}>
+                        <Text style={styles.text}>Sign up</Text>
+                        <CustomInput
+                            placeholder="First Name"
+                            value={firstName}
+                            setValue={setFirstName}
+                            autoCapitalize="words"
+                        />
+                        <CustomInput
+                            placeholder="Last Name"
+                            value={lastName}
+                            setValue={setLastName}
+                            autoCapitalize="words"
+                        />
+                        <CustomInput
+                            placeholder="Username"
+                            value={username}
+                            setValue={setUsername}
+                        />
+                        <CustomInput
+                            placeholder="Email Address"
+                            value={email}
+                            setValue={setEmail}
+                            keyboardType='email-address'
+                        />
+                        <CustomInput
+                            placeholder="Password"
+                            value={password}
+                            setValue={setPassword}
+                            secureTextEntry={true}
+                        />
+                        <CustomInput
+                            placeholder="Confirm Password"
+                            value={confirmPassword}
+                            setValue={setConfirmPassword}
+                            secureTextEntry={true}
+                        />
+                        <View style={{ width: 200, marginTop: 10 }}>
+                            <CustomButton
+                                text='Create Account' onPress={handleRegister}
+                                type='PRIMARY'
+                                disabled={!firstName || !lastName || !username || !email || !password || !confirmPassword}
+                            />
+                        </View>
+                    </View>
+
+                    <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Text>Already have an account?</Text>
+                        <CustomButton
+                            text='Login!' onPress={onLoginPressed}
+                            type='TERTIARY'
+                        />
+                    </View>
+
+                </ScrollView>
+            </TouchableWithoutFeedback>
 
             <Modal /* Verification code dialog */
                 transparent={true}
@@ -251,29 +260,18 @@ const SignupScreen = () => {
 
                 </View>
             </Modal>
+
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    root: {
-        alignItems: 'center',
-        padding: 50,
-    },
 
     text: {
         fontWeight: 'bold',
         color: 'darkblue',
         fontSize: 32,
-        paddingTop: 70,
         paddingBottom: 25,
-    },
-    container_login: {
-        position: 'absolute',
-        width: '100%',
-        height: 100, // Set the height of your component
-        justifyContent: 'center', // Vertically center content
-        alignItems: 'center', // Horizontally center content
     }
 });
 
