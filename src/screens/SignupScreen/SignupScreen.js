@@ -18,6 +18,7 @@ const SignupScreen = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const { height } = useWindowDimensions();
     const navigation = useNavigation();
+    const [userId, setUserId] = useState(0);
 
     const showDialog = () => {
         StatusBar.setBarStyle('light-content');
@@ -62,6 +63,7 @@ const SignupScreen = () => {
         axios.post(`http://${serverIp}:${serverPort}/register`, user)
             .then((response) => {
                 showDialog();
+                setUserId(response.data.userId);
             })
             .catch((error) => {
                 if (error.response) {
@@ -75,7 +77,16 @@ const SignupScreen = () => {
     const handleCancel = () => {
         hideDialog();
         setVerificationCode('');
-        //delete user from db
+        axios.delete(`http://${serverIp}:${serverPort}/users/${userId}`)
+            .then((response) => {
+            })
+            .catch((error) => {
+                if (error.response) {
+                    Alert.alert("Deletion error", error.response.data.message);
+                } else {
+                    Alert.alert("Network error", 'Unable to connect to the server');
+                }
+            });
     };
 
     const handleOK = () => {
