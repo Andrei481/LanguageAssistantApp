@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as NavigationBar from 'expo-navigation-bar';
+import { loadMobilenetAlpha } from '../../storedMobilenetAlpha.js';
 
 const LoginScreen = () => {
     const [username, setUsername] = useState('');
@@ -16,6 +17,7 @@ const LoginScreen = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
+        loadMobilenetAlpha();
         NavigationBar.setButtonStyleAsync('dark');
         NavigationBar.setBackgroundColorAsync('#f2f2f2');
     }, []);

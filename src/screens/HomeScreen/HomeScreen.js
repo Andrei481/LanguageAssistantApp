@@ -11,11 +11,11 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as NavigationBar from 'expo-navigation-bar';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
-import * as Device from 'expo-device';
 import axios from "axios";
 import { serverIp, serverPort } from '../../network';
 import appIcon from '../../../assets/icon.png';
 import appInfo from '../../../app.json';
+import { getStoredMobilenetAlpha, storeMobilenetAlpha } from '../../storedMobilenetAlpha.js';
 
 const HomeScreen = ({ route }) => {
     const { userId } = route.params;
@@ -30,54 +30,16 @@ const HomeScreen = ({ route }) => {
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [isAboutVisible, setIsAboutVisible] = useState(false);
     const [isProfileInfoVisible, setIsProfileInfoVisible] = useState(false);
-    const [mobilenetAlpha, setMobilenetAlpha] = useState(1);
+    const [mobilenetAlpha, setMobilenetAlpha] = useState(0);
     const [changedAlpha, setChangedAlpha] = useState(false);
-    const [initialLoadModel, setInitialLoadModel] = useState(false);
     const screenWidth = Dimensions.get('window').width;
 
-    const loadMobilenetAlpha = async () => {
-        /* Load alpha value from local storage */
-        try {
-            const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
-            const fileInfo = await FileSystem.getInfoAsync(fileUri);
-
-            if (fileInfo.exists) {
-                const content = await FileSystem.readAsStringAsync(fileUri);
-                setMobilenetAlpha(parseFloat(content));
-                return;
-            }
-
-            if (Device.brand === 'google') {
-                setMobilenetAlpha(0.75);
-                saveMobilenetAlpha();
-                return;
-            }
-
-            /* Default value */
-            setMobilenetAlpha(1);
-            saveMobilenetAlpha();
-
-        } catch (error) {
-            Alert.alert('Error loading MobileNet alpha', error);
-        }
-    };
-
-    const saveMobilenetAlpha = async () => {
-        /* Store alpha value in local storage */
-        try {
-            const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
-            await FileSystem.writeAsStringAsync(fileUri, mobilenetAlpha.toString());
-        } catch (error) {
-            Alert.alert('Error storing MobileNet alpha', error);
-        }
-    };
-
-    const loadMobileNet = async () => {
+    const loadMobileNet = async (selectedAlpha) => {
         /* Load MobileNet model with selected alpha */
         try {
             setisModelLoaded(false);
             await tf.ready();
-            const mobilenetModel = await mobilenet.load({ version: 1, alpha: mobilenetAlpha });
+            const mobilenetModel = await mobilenet.load({ version: 1, alpha: selectedAlpha });
             setisModelLoaded(true);
             setModel(mobilenetModel);
         } catch (error) {
@@ -100,25 +62,15 @@ const HomeScreen = ({ route }) => {
 
             BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-            return () => { BackHandler.removeEventListener('hardwareBackPress', onBackPress); console.log('unfocused'); };
+            return () => { BackHandler.removeEventListener('hardwareBackPress', onBackPress); };
         }, [navigation])
     );
 
     useEffect(() => {
-        /* Run every time the screen is rendered */
-
-        const loadModel = async () => {
-            await loadMobilenetAlpha();
-            setInitialLoadModel(true);
-        };
-
-        loadModel();
+        const storedMobilenetAlpha = getStoredMobilenetAlpha();
+        setMobilenetAlpha(storedMobilenetAlpha);
+        loadMobileNet(storedMobilenetAlpha);
     }, []);
-
-    useEffect(() => {
-        /* Ugly workaround to wait until alpha is loaded */
-        if (initialLoadModel) loadMobileNet();
-    }, [initialLoadModel]);
 
     const openAbout = () => {
         NavigationBar.setButtonStyleAsync('light');
@@ -129,8 +81,8 @@ const HomeScreen = ({ route }) => {
         NavigationBar.setButtonStyleAsync('dark');
         setIsAboutVisible(false);
         if (changedAlpha) {
-            loadMobileNet();
-            saveMobilenetAlpha();
+            loadMobileNet(mobilenetAlpha);
+            storeMobilenetAlpha(mobilenetAlpha);
             setChangedAlpha(false);
         }
     }
