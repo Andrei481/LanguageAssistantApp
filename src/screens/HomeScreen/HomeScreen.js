@@ -102,13 +102,13 @@ const HomeScreen = ({ route }) => {
     }, [initialLoadModel]);
 
     const openAbout = () => {
-        setIsAboutVisible(true);
         NavigationBar.setButtonStyleAsync('light');
+        setIsAboutVisible(true);
     };
 
     const closeAbout = () => {
-        setIsAboutVisible(false);
         NavigationBar.setButtonStyleAsync('dark');
+        setIsAboutVisible(false);
         if (changedAlpha) {
             loadMobileNet();
             saveMobilenetAlpha();
@@ -117,13 +117,23 @@ const HomeScreen = ({ route }) => {
     }
 
     const openProfileInfo = () => {
-        setIsProfileInfoVisible(true);
         NavigationBar.setButtonStyleAsync('light');
+        setIsProfileInfoVisible(true);
     };
 
     const closeProfileInfo = () => {
-        setIsProfileInfoVisible(false);
         NavigationBar.setButtonStyleAsync('dark');
+        setIsProfileInfoVisible(false);
+    };
+
+    const showDetecting = () => {
+        NavigationBar.setButtonStyleAsync('light');
+        setisDetecting(true);
+    };
+
+    const hideDetecting = () => {
+        NavigationBar.setButtonStyleAsync('dark');
+        setisDetecting(false);
     };
 
     const toggleAlpha = () => {
@@ -214,8 +224,7 @@ const HomeScreen = ({ route }) => {
                 Alert.alert("Detection error", "Model not loaded.");
                 return;
             }
-            setisDetecting(true);
-            NavigationBar.setButtonStyleAsync('light');
+            showDetecting();
 
             // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImageLow, {
@@ -264,13 +273,11 @@ const HomeScreen = ({ route }) => {
                 }
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
-            setisDetecting(false);
-            NavigationBar.setButtonStyleAsync('dark');
+            hideDetecting();
 
         } catch (err) {
             Alert.alert("Detection error", err.message || "Something went wrong.");
-            setisDetecting(false);
-            NavigationBar.setButtonStyleAsync('dark');
+            hideDetecting();
         }
     };
 
