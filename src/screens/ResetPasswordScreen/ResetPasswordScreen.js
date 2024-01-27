@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { serverIp, serverPort } from '../../network';
-import { View, Text, StyleSheet, Alert, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Alert, StatusBar, TouchableWithoutFeedback, ScrollView, Keyboard } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton'
 import { useNavigation } from '@react-navigation/native';
@@ -30,30 +30,34 @@ const ResetPasswordScreen = ({ route }) => {
     };
 
     return (
-        <View style={styles.root}>
-            <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView>
+                <View style={styles.root}>
+                    <StatusBar barStyle={'dark-content'} backgroundColor={'transparent'} translucent={true} />
 
-            <Text style={styles.text_title}>Reset Password</Text>
-            <CustomInput
-                placeholder="New Password"
-                value={newPassword}
-                setValue={setNewPassword}
-                secureTextEntry={true}
-            />
-            <CustomInput
-                placeholder="Confirm New Password"
-                value={confirmNewPassword}
-                setValue={setConfirmNewPassword}
-                secureTextEntry={true}
-            />
-            <View style={{ width: 200, marginTop: 10 }}>
-                <CustomButton
-                    text='Reset Password' onPress={onResetPasswordPressed}
-                    type='PRIMARY'
-                    disabled={!newPassword || !confirmNewPassword}
-                />
-            </View>
-        </View>
+                    <Text style={styles.text_title}>Reset Password</Text>
+                    <CustomInput
+                        placeholder="New Password"
+                        value={newPassword}
+                        setValue={setNewPassword}
+                        secureTextEntry={true}
+                    />
+                    <CustomInput
+                        placeholder="Confirm New Password"
+                        value={confirmNewPassword}
+                        setValue={setConfirmNewPassword}
+                        secureTextEntry={true}
+                    />
+                    <View style={{ width: 200, marginTop: 10 }}>
+                        <CustomButton
+                            text='Reset Password' onPress={onResetPasswordPressed}
+                            type='PRIMARY'
+                            disabled={!newPassword || !confirmNewPassword}
+                        />
+                    </View>
+                </View>
+            </ScrollView>
+        </TouchableWithoutFeedback>
     );
 };
 
