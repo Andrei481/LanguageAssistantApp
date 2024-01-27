@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform, Linking } from 'react-native';
+import { View, Text, Image, Modal, ActivityIndicator, TouchableOpacity, Alert, Button, StatusBar, StyleSheet, Dimensions, Platform, Linking, BackHandler } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as tf from '@tensorflow/tfjs';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
@@ -7,15 +7,15 @@ import * as mobilenet from '@tensorflow-models/mobilenet';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as NavigationBar from 'expo-navigation-bar';
 import CustomButton from '../../components/CustomButton';
 import * as MediaLibrary from 'expo-media-library';
-import * as Device from 'expo-device';
 import axios from "axios";
 import { serverIp, serverPort } from '../../network';
 import appIcon from '../../../assets/icon.png';
 import appInfo from '../../../app.json';
+import { getStoredMobilenetAlpha, storeMobilenetAlpha } from '../../storedMobilenetAlpha.js';
 
 const HomeScreen = ({ route }) => {
     const { userId } = route.params;
@@ -30,54 +30,17 @@ const HomeScreen = ({ route }) => {
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [isAboutVisible, setIsAboutVisible] = useState(false);
     const [isProfileInfoVisible, setIsProfileInfoVisible] = useState(false);
-    const [mobilenetAlpha, setMobilenetAlpha] = useState(1);
+    const [mobilenetAlpha, setMobilenetAlpha] = useState(0);
     const [changedAlpha, setChangedAlpha] = useState(false);
-    const [initialLoadModel, setInitialLoadModel] = useState(false);
     const screenWidth = Dimensions.get('window').width;
+    let logoutVisible = false;
 
-    const loadMobilenetAlpha = async () => {
-        /* Load alpha value from local storage */
-        try {
-            const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
-            const fileInfo = await FileSystem.getInfoAsync(fileUri);
-
-            if (fileInfo.exists) {
-                const content = await FileSystem.readAsStringAsync(fileUri);
-                setMobilenetAlpha(parseFloat(content));
-                return;
-            }
-
-            if (Device.brand === 'google') {
-                setMobilenetAlpha(0.75);
-                saveMobilenetAlpha();
-                return;
-            }
-
-            /* Default value */
-            setMobilenetAlpha(1);
-            saveMobilenetAlpha();
-
-        } catch (error) {
-            Alert.alert('Error loading MobileNet alpha', error);
-        }
-    };
-
-    const saveMobilenetAlpha = async () => {
-        /* Store alpha value in local storage */
-        try {
-            const fileUri = `${FileSystem.documentDirectory}mobilenetAlpha.txt`;
-            await FileSystem.writeAsStringAsync(fileUri, mobilenetAlpha.toString());
-        } catch (error) {
-            Alert.alert('Error storing MobileNet alpha', error);
-        }
-    };
-
-    const loadMobileNet = async () => {
+    const loadMobileNet = async (selectedAlpha) => {
         /* Load MobileNet model with selected alpha */
         try {
             setisModelLoaded(false);
             await tf.ready();
-            const mobilenetModel = await mobilenet.load({ version: 1, alpha: mobilenetAlpha });
+            const mobilenetModel = await mobilenet.load({ version: 1, alpha: selectedAlpha });
             setisModelLoaded(true);
             setModel(mobilenetModel);
         } catch (error) {
@@ -85,45 +48,67 @@ const HomeScreen = ({ route }) => {
         }
     };
 
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                if (logoutVisible) return true;
+
+                logoutVisible = true;
+                Alert.alert('', 'Are you sure you want to log out?',
+                    [
+                        { text: 'Cancel', onPress: () => { logoutVisible = false; }, style: 'cancel' },
+                        { text: 'Log out', onPress: () => { logoutVisible = false; navigation.navigate('Login'); } },
+                    ],
+                    { cancelable: false }
+                );
+                return true;
+            };
+
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+            return () => { BackHandler.removeEventListener('hardwareBackPress', onBackPress); };
+        }, [navigation])
+    );
+
     useEffect(() => {
-        /* Run every time the screen is rendered */
-
-        const loadModel = async () => {
-            await loadMobilenetAlpha();
-            setInitialLoadModel(true);
-        };
-
-        loadModel();
+        const storedMobilenetAlpha = getStoredMobilenetAlpha();
+        setMobilenetAlpha(storedMobilenetAlpha);
+        loadMobileNet(storedMobilenetAlpha);
     }, []);
 
-    useEffect(() => {
-        /* Ugly workaround to wait until alpha is loaded */
-        if (initialLoadModel) loadMobileNet();
-    }, [initialLoadModel]);
-
     const openAbout = () => {
-        setIsAboutVisible(true);
         NavigationBar.setButtonStyleAsync('light');
+        setIsAboutVisible(true);
     };
 
     const closeAbout = () => {
-        setIsAboutVisible(false);
         NavigationBar.setButtonStyleAsync('dark');
+        setIsAboutVisible(false);
         if (changedAlpha) {
-            loadMobileNet();
-            saveMobilenetAlpha();
+            loadMobileNet(mobilenetAlpha);
+            storeMobilenetAlpha(mobilenetAlpha);
             setChangedAlpha(false);
         }
     }
 
     const openProfileInfo = () => {
-        setIsProfileInfoVisible(true);
         NavigationBar.setButtonStyleAsync('light');
+        setIsProfileInfoVisible(true);
     };
 
     const closeProfileInfo = () => {
-        setIsProfileInfoVisible(false);
         NavigationBar.setButtonStyleAsync('dark');
+        setIsProfileInfoVisible(false);
+    };
+
+    const showDetecting = () => {
+        NavigationBar.setButtonStyleAsync('light');
+        setisDetecting(true);
+    };
+
+    const hideDetecting = () => {
+        NavigationBar.setButtonStyleAsync('dark');
+        setisDetecting(false);
     };
 
     const toggleAlpha = () => {
@@ -214,8 +199,7 @@ const HomeScreen = ({ route }) => {
                 Alert.alert("Detection error", "Model not loaded.");
                 return;
             }
-            setisDetecting(true);
-            NavigationBar.setButtonStyleAsync('light');
+            showDetecting();
 
             // Convert image to tensor
             const imgB64 = await FileSystem.readAsStringAsync(pickedImageLow, {
@@ -264,13 +248,11 @@ const HomeScreen = ({ route }) => {
                 }
                 navigation.navigate('Object Detection', { userId, pickedImage: pickedImageHigh, prediction });
             }
-            setisDetecting(false);
-            NavigationBar.setButtonStyleAsync('dark');
+            hideDetecting();
 
         } catch (err) {
             Alert.alert("Detection error", err.message || "Something went wrong.");
-            setisDetecting(false);
-            NavigationBar.setButtonStyleAsync('dark');
+            hideDetecting();
         }
     };
 

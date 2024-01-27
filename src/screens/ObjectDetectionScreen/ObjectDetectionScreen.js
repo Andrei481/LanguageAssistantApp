@@ -64,13 +64,13 @@ const ObjectDetectionScreen = ({ route }) => {
     }, [selectedLanguage, objectInfo.className]);
 
     const openProfileInfo = () => {
-        setIsProfileInfoVisible(true);
         NavigationBar.setButtonStyleAsync('light');
+        setIsProfileInfoVisible(true);
     };
 
     const closeProfileInfo = () => {
-        setIsProfileInfoVisible(false);
         NavigationBar.setButtonStyleAsync('dark');
+        setIsProfileInfoVisible(false);
     };
 
     const handleProfilePress = () => {

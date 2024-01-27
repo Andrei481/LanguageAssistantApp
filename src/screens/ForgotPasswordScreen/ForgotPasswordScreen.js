@@ -16,15 +16,15 @@ const ForgotPasswordScreen = () => {
     const navigation = useNavigation();
 
     const showDialog = () => {
-        setDialogVisible(true);
-        NavigationBar.setButtonStyleAsync('light');
         StatusBar.setBarStyle('light-content');
+        NavigationBar.setButtonStyleAsync('light');
+        setDialogVisible(true);
     };
 
     const hideDialog = () => {
-        setDialogVisible(false);
-        NavigationBar.setButtonStyleAsync('dark');
         StatusBar.setBarStyle('dark-content');
+        NavigationBar.setButtonStyleAsync('dark');
+        setDialogVisible(false);
     };
 
     const onSignUpPressed = () => {
