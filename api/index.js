@@ -66,7 +66,7 @@ app.post("/register", async (req, res) => {
 
         await newUser.save();
 
-        res.status(200).json({ message: "Registration successful" });
+        res.status(200).json({ message: "Registration successful", userId: newUser._id });
     } catch (error) {
         console.log("error registering user", error);
         res.status(500).json({ message: "error registering user" });
@@ -294,6 +294,23 @@ app.route("/deleteAllImages")
             res.status(500).json({ message: "Internal server error" });
         }
     });
+
+app.delete("/users/:userId", async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        const deletedUser = await User.findByIdAndDelete(userId);
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ message: "User deleted successfully", deletedUser });
+    } catch (error) {
+        console.error("Error deleting user", error);
+        res.status(500).json({ message: "Error deleting user" });
+    }
+});
 
 app.get('/user/:userId', async (req, res) => {
     try {
