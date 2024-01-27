@@ -33,6 +33,7 @@ const HomeScreen = ({ route }) => {
     const [mobilenetAlpha, setMobilenetAlpha] = useState(0);
     const [changedAlpha, setChangedAlpha] = useState(false);
     const screenWidth = Dimensions.get('window').width;
+    let logoutVisible = false;
 
     const loadMobileNet = async (selectedAlpha) => {
         /* Load MobileNet model with selected alpha */
@@ -50,10 +51,13 @@ const HomeScreen = ({ route }) => {
     useFocusEffect(
         React.useCallback(() => {
             const onBackPress = () => {
+                if (logoutVisible) return true;
+
+                logoutVisible = true;
                 Alert.alert('', 'Are you sure you want to log out?',
                     [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Log out', onPress: () => { navigation.navigate('Login'); } },
+                        { text: 'Cancel', onPress: () => { logoutVisible = false; }, style: 'cancel' },
+                        { text: 'Log out', onPress: () => { logoutVisible = false; navigation.navigate('Login'); } },
                     ],
                     { cancelable: false }
                 );
