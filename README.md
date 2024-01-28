@@ -14,5 +14,5 @@
 - Andrei JOLDEA &nbsp;&nbsp; &nbsp;&nbsp; — &nbsp;&nbsp; andrei.joldea@student.upt.ro  
 - Andrei LAZAROV &nbsp;&nbsp; — &nbsp;&nbsp; andrei.lazarov@student.upt.ro
 
-### [Slideshow](https://docs.google.com/presentation/d/1QBmnjBgvB85LjTHLeM4XnskQvkOjq6FVtV4fOmLFeIw/edit?usp=sharing)
+### [Slideshow](https://docs.google.com/presentation/d/1QBmnjBgvB85LjTHLeM4XnskQvkOjq6FVtV4fOmLFeIw/edit?usp=sharing) &nbsp;&nbsp; | &nbsp;&nbsp; [Video demonstration](https://youtu.be/_J2LdCovsb0?si=BVcpv6Xd72_cxobW)
 <img src="assets/cover.jpg" alt="App demonstration image" width="500"/>
