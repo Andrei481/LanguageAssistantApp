@@ -2,7 +2,7 @@
     "expo": {
         "name": "Language Assistant",
         "slug": "LanguageAssistant",
-        "version": "0.5.1",
+        "version": "0.5.3",
         "githubUrl": "https://github.com/Andrei481/LanguageAssistantApp",
         "orientation": "portrait",
         "icon": "./assets/icon.png",

@@ -137,10 +137,21 @@ const HomeScreen = ({ route }) => {
             /* Compress image */
             const compressValue = 0.6;
             const widthValue = pickerResult.assets[0].width > 600 ? 600 : pickerResult.assets[0].width;
-            const manipulatedImage = await manipulateAsync(
+            const imageLow = await manipulateAsync(
                 pickerResult.assets[0].uri, [{ resize: { width: widthValue } }], { compress: compressValue, format: SaveFormat.JPEG }
             );
-            setPickedImageLow(manipulatedImage.uri);
+            setPickedImageLow(imageLow.uri);
+
+            const imageLowSize = (await FileSystem.getInfoAsync(imageLow.uri)).size / 1024;
+            if (imageLowSize > 73) {
+                /* Can't upload images larger than ~74 KB */
+                /* So we resize again */
+                const lowerWidthValue = pickerResult.assets[0].width > 400 ? 400 : pickerResult.assets[0].width;
+                const imageLower = await manipulateAsync(
+                    pickerResult.assets[0].uri, [{ resize: { width: lowerWidthValue } }], { compress: compressValue, format: SaveFormat.JPEG }
+                );
+                setPickedImageLow(imageLower.uri);
+            }
         }
 
         setIsPickerOpen(false);
@@ -227,7 +238,11 @@ const HomeScreen = ({ route }) => {
                     await axios.post(`http://${serverIp}:${serverPort}/detection`, detectionData)
                         .catch(error => {
                             if (error.response && error.response.status !== 409) {
-                                Alert.alert('Upload error', error.message || "Unable to connect to the server.");
+                                if (error.response.status === 413) {
+                                    Alert.alert('Upload error', "Image too large.\n\nDon't worry, you still get the results.");
+                                }
+                                else
+                                    Alert.alert('Upload error', error.message || "Unable to connect to the server.");
                             }
                         });
                 }
